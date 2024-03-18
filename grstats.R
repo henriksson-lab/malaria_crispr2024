@@ -16,6 +16,12 @@ listpools <- c("cr_2023march_screen")
 listpools <- c("barseq_slowhires_2023dec")
 listpools <- c("cr_2023aug_p192","cr_2023aug_p24","cr_2023aug_p96","cr_2023jan_tags", "cr_2023march_screen", "cr_2023march_screen_noD4")
 
+#2024 march
+listpools <- c("cr_2024march_half1","cr_2024march_p1","cr_2024march_p12","cr_2024march_p2")
+
+
+
+
 
 
 listpools <- c(
@@ -35,7 +41,9 @@ listpools <- c(
   "barseq_priming_barseqpool4",
   "barseq_slowhires_2023dec",
   "barseq_slowpool_1",
-  "barseq_slowpool_2"
+  "barseq_slowpool_2",
+
+  "cr_2024march_half1","cr_2024march_p1","cr_2024march_p12","cr_2024march_p2"
 )
 
 timecourses <- list()
@@ -84,7 +92,7 @@ for(curpool in listpools){
     
     allgeneconstructs <- data.frame(
       grna=rownames(counts),
-      gene=rownames(counts)
+      gene=str_split_fixed(rownames(counts),"00gRNA",2)[,1]  ### is this ok??? hack!
     )
     allgeneconstructs$genecat <- "Other"
     allgeneconstructs$genewiz <- "NA"
@@ -99,8 +107,8 @@ for(curpool in listpools){
   genes_dispensible <- allgeneconstructs$gene[allgeneconstructs$genecat=="Dispensable"]
   
   
-  ### Extract input
-  input_sampleid <- samplemeta$sampleid[samplemeta$is_input]
+  ### Extract FIRST input
+  input_sampleid <- samplemeta$sampleid[samplemeta$is_input][1]
   coverage_stat <- data.frame(
     grna=rownames(counts),
     cnt=counts[,input_sampleid])

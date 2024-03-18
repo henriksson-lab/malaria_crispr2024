@@ -1,5 +1,6 @@
 library(plotly)
 library(Cairo)
+library(naturalsort)
 options(shiny.usecairo=T)
 
 if(FALSE){
@@ -51,14 +52,21 @@ server <- function(input, output, session) {
     p6 <- ggplot(samplemeta, aes(umap1,umap2,color=total_count))+geom_point()
     ptot <- p1/p2|p3/p4|p5/p6 #|p7
     
-    
+    #print(7777)
+    #print(head(coverage_stat))
+    #print(8888)
     coverage_stat <- coverage_stat[order(coverage_stat$cnt, decreasing = TRUE),]
     coverage_stat$grna <- factor(coverage_stat$grna, levels=coverage_stat$grna)
     covstatplot <- ggplot(coverage_stat, aes(grna,cnt,color=genecat)) + geom_point() + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+    #Natural order on genewiz column    
+    coverage_stat <- coverage_stat[naturalsort::naturalorder(coverage_stat$genewiz),]  #R install naturalsort
+    coverage_stat$genewiz <- factor(coverage_stat$genewiz, levels=naturalsort::naturalsort(unique(coverage_stat$genewiz)))
     
-    wellplot <- ggplot(coverage_stat, aes(genewiz, ligationwell, color=log10(cnt))) + geom_point()
-    
-    
+    wellplot <- ggplot(coverage_stat, aes(genewiz, ligationwell, color=log10(cnt))) + 
+      geom_point() + 
+      theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
     ptot/(covstatplot|wellplot)
     
     

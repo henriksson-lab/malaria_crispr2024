@@ -17,6 +17,7 @@ library(stringr)
 ####################### Generate count matrices -- barseq ######################
 ################################################################################
 
+
 listpools <- c(
   #  "barseq_minipool2",  #just a cnt file!
   "barseq_priming_Candidatepool1",
@@ -106,7 +107,10 @@ if(FALSE){
 ####################### Generate count matrices -- CRISPR ######################
 ################################################################################
 
+listpools <- c("cr_2024march_half1","cr_2024march_p1","cr_2024march_p12","cr_2024march_p2")
+
 # "tags" = EB_barseq_slowpool_CRISPR
+
 
 #listpools <- c("tags")
 listpools <- c("2023march_screen_noD4")
@@ -151,10 +155,27 @@ for(curpool in listpools){
   #getting out the right barcodes  
   counts <- counts[order(rowSums(counts), decreasing = TRUE),]
   counts <- counts[rownames(counts) %in% usedbc$seq,]
-  colnames(counts) <- str_sub(colnames(counts),1,11)
+  
+  #Keep name up to _S##
+  colnames(counts) <- str_split_fixed(colnames(counts),"_S",2)[,1]
+  #colnames(counts) <- str_sub(colnames(counts),1,11) ##### only applies if
   
   rownames(usedbc) <- usedbc$seq
   rownames(counts) <- usedbc[rownames(counts),]$sgrna
   
   saveRDS(counts, countfile)
 }
+
+
+
+listpools <- c("cr_2024march_half1","cr_2024march_p1","cr_2024march_p12","cr_2024march_p2")
+for(curpool in listpools){
+  print(curpool)
+  allpooldir <- "/corgi/otherdataset/ellenbushell/crispr_pools"
+  pooldir <- file.path(allpooldir, curpool)
+  countfile <- file.path(pooldir,"counts.RDS")
+  counts <- readRDS(countfile)
+  print(rowMeans(counts))
+}
+
+
