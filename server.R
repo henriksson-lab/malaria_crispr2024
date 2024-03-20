@@ -1,6 +1,7 @@
 library(plotly)
 library(Cairo)
 library(naturalsort)
+
 options(shiny.usecairo=T)
 
 if(FALSE){
@@ -94,22 +95,25 @@ server <- function(input, output, session) {
   
   output$plot_grstats_volcano <- renderPlotly({
     
-    #could use get_current_volcano  above
     
-    current_pool <- input$grstats_pool
-    print(current_pool)
-    grstats <- all_grstats[[current_pool]]
     thecond <- input$grstats_volcano
+    toplot <- get_current_volcano()
     
-    if(thecond %in% names(grstats$volcano)){
-      toplot <- grstats$volcano[[thecond]]
-      theplot <- ggplot(toplot, aes(fc, logp, label=gene, color=genecat)) + 
-        geom_point(color="gray") + 
-        geom_text() +
-        xlab(paste("FC",thecond)) + 
-        ylab(paste("-log10 pval",thecond))
+    if(nrow(toplot)>0){
+      if(input$grstats_show_gene_name){
+        theplot <- ggplot(toplot, aes(fc, logp, label=gene, color=genecat)) + 
+          geom_point(color="gray") + 
+          geom_text() +
+          xlab(paste("FC",thecond)) + 
+          ylab(paste("-log10 pval",thecond))
+        
+      } else {
+        theplot <- ggplot(toplot, aes(fc, logp, label=gene, color=genecat)) + 
+          geom_point() + 
+          xlab(paste("FC",thecond)) + 
+          ylab(paste("-log10 pval",thecond))
+      }
     } else {
-      print("missing condition")
       theplot <- ggplot() + theme_void()
     }
     theplot  %>% ggplotly(source="plot_grstats_volcano") %>% event_register("plotly_click")
@@ -119,12 +123,28 @@ server <- function(input, output, session) {
   observeEvent(
     eventExpr = event_data("plotly_click", source = "plot_grstats_volcano"),
     handlerExpr = {
-      print("plotly_click")
+      
+      toplot <- get_current_volcano()
+
       event_data <- event_data("plotly_click", source = "plot_grstats_volcano")
+      print("plotly_click on plot_grstats_volcano. event data:")
       print(event_data)
-      clicked_gene <- get_current_volcano()$gene[event_data$pointNumber+1]  #plotly seems to do 0-indexing
-      print(get_current_volcano())
+      
+      
+      toplot$dx <- (toplot$fc - event_data$x)
+      toplot$dy <- (toplot$logp - event_data$y)
+      toplot$dist <- toplot$dx**2 + toplot$dy**2
+      toplot <- toplot[order(toplot$dist, decreasing = FALSE),]
+      
+      #clicked_gene <- toplot$gene[event_data$pointNumber+1]  #plotly seems to do 0-indexing
+      clicked_gene <- toplot$gene[1] 
+      print(toplot)
       print(clicked_gene)
+      print("")
+      print("")
+      print("")
+      print("")
+      print("")
       updateSelectInput(session, "grstats_gene", selected = clicked_gene)
     }
   )  

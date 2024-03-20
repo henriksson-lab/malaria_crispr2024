@@ -22,17 +22,7 @@ listpools <- c("cr_2024march_half1","cr_2024march_p1","cr_2024march_p12","cr_202
 
 
 
-
-
-listpools <- c(
-  
-  "cr_2023aug_p192",
-  "cr_2023aug_p24",
-#  "cr_2023aug_p96",
-  "cr_2023jan_tags", 
-  "cr_2023march_screen", 
-#  "cr_2023march_screen_noD4",
-  
+listpools_barseq <- c(
   "barseq_minipool2",
   "barseq_priming_Candidatepool1",
   "barseq_priming_Candidatepool2",
@@ -41,9 +31,22 @@ listpools <- c(
   "barseq_priming_barseqpool4",
   "barseq_slowhires_2023dec",
   "barseq_slowpool_1",
-  "barseq_slowpool_2",
+  "barseq_slowpool_2"
+)
 
-  "cr_2024march_half1","cr_2024march_p1","cr_2024march_p12","cr_2024march_p2"
+listpools <- c(
+  #listpools_barseq
+  
+  "cr_2023aug_p192",
+  "cr_2023aug_p24",
+  "cr_2023jan_tags", 
+  "cr_2023march_screen", 
+
+
+  "cr_2024march_half1",
+  "cr_2024march_p1",
+  "cr_2024march_p12",
+  "cr_2024march_p2"
 )
 
 timecourses <- list()
