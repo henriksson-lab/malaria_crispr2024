@@ -148,14 +148,21 @@ server <- function(input, output, session) {
       print("plotly_click on plot_grstats_volcano. event data:")
       print(event_data)
       
+      if(input$grstats_y=="-Log10 p, different from control genes"){
+        toplot$y <- toplot$logp
+      } else {
+        toplot$y <- 1/toplot$sd
+      }
       
       toplot$dx <- (toplot$fc - event_data$x)
-      toplot$dy <- (toplot$logp - event_data$y)
+      toplot$dy <- (toplot$y - event_data$y)
       toplot$dist <- toplot$dx**2 + toplot$dy**2
       toplot <- toplot[order(toplot$dist, decreasing = FALSE),]
       
       #clicked_gene <- toplot$gene[event_data$pointNumber+1]  #plotly seems to do 0-indexing
       clicked_gene <- toplot$gene[1] 
+      print(clicked_gene)
+      clicked_gene <- str_split_fixed(clicked_gene," ",3)[1] ## remove gene name in hover
       print(toplot)
       print(clicked_gene)
       print("")
