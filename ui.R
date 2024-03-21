@@ -58,6 +58,14 @@ tab_grstats <- fluidPage(
             selected = NULL
           ),
         
+          selectInput(
+            inputId = "grstats_y",
+            label = "Y-axis:",
+            selectize = FALSE,
+            multiple = FALSE,
+            choices = c("1/s.d.","-Log10 p, different from control genes"), 
+            selected = NULL
+          ),
           checkboxInput(
             inputId = "grstats_show_gene_name",
             label = "Show gene name",

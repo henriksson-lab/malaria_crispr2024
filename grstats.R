@@ -34,13 +34,18 @@ listpools_barseq <- c(
   "barseq_slowpool_2"
 )
 
-listpools <- c(
-  #listpools_barseq
+listpools_crispr1 <- c(
   
   "cr_2023aug_p192",
   "cr_2023aug_p24",
   "cr_2023jan_tags", 
-  "cr_2023march_screen", 
+  "cr_2023march_screen"
+)
+
+
+listpools <- c(
+  #listpools_barseq
+  #listpools_crispr1
 
 
   "cr_2024march_half1",
@@ -87,6 +92,7 @@ for(curpool in listpools){
   #### Read info about the cloning
   cloningfile <- file.path(pooldir,"cloning.csv")
   if(file.exists(cloningfile)){
+    print("Reading cloning.csv")
     allgeneconstructs <- read.csv(cloningfile,sep="\t")  #read.csv("/corgi/otherdataset/ellenbushell/crispr_geneinfo.csv",sep="\t")
     allgeneconstructs$gene <- str_split_fixed(allgeneconstructs$grna,"gRNA",2)[,1]
     allgeneconstructs$genecat[allgeneconstructs$genecat==""] <- "Other"
@@ -147,7 +153,7 @@ for(curpool in listpools){
     list_controls <- read.csv(controlmetafile)[,1]
   } else {
     print("using dispensable as controls")
-    list_controls <- unique(rownames(counts)[rownames(counts) %in% genes_dispensible])
+    list_controls <- unique(rownames(counts)[rownames(counts) %in% grna_dispensible])   #was genes_dispensible, bug!
   }
   print(list_controls)
   
