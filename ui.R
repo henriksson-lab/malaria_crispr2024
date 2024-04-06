@@ -98,7 +98,7 @@ tab_grstats <- fluidPage(
                label = "Representation:",
                selectize = FALSE,
                multiple = FALSE,
-               choices = c("Volcano plot","FC scatter plot"), 
+               choices = c("Volcano plot","RGR scatter plot"), 
                selected = "Volcano plot"
              ),
          #)

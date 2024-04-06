@@ -121,7 +121,7 @@ server <- function(input, output, session) {
         theplot <- ggplot(toplot, aes(fc, y, label=gene, color=genecat)) + 
           geom_point(color="gray") + 
           geom_text() +
-          xlab(paste("FC",thecond)) + 
+          xlab(paste("RGR",thecond)) + 
           ylab(yname)
       } else {
         
@@ -132,7 +132,7 @@ server <- function(input, output, session) {
         
         theplot <- ggplot(toplot, aes(fc, y, label=gene, color=genecat)) + 
           geom_point() + 
-          xlab(paste("FC",thecond)) + 
+          xlab(paste("RGR",thecond)) + 
           ylab(yname) +
           scale_color_manual(values = c("chartreuse4", "red", "dodgerblue", "turquoise3")) #"Dispensible","Essential","Slow growers","Other"
         #https://sape.inf.usi.ch/quick-reference/ggplot2/colour
@@ -215,11 +215,11 @@ server <- function(input, output, session) {
       cond2 <- thecond2[2]
       
       
-      if(represent_as=="FC scatter plot"){
+      if(represent_as=="RGR scatter plot"){
         
         fc_range <- range(c(toplot$fc1, toplot$fc2))
         theplot <- ggplot(toplot, aes(fc1,fc2, label=gene, color=genedesc)) + geom_point(color="gray") + geom_text()+#size=1) +
-          xlab(paste("FC",cond1)) + ylab(paste("FC",cond2)) +
+          xlab(paste("RGR",cond1)) + ylab(paste("RGR",cond2)) +
           xlim(fc_range[1], fc_range[2]) + ylim(fc_range[1], fc_range[2])
         
       } else {
@@ -227,7 +227,7 @@ server <- function(input, output, session) {
         theplot <- ggplot(toplot, aes(diff_fc, diff_log_p, label=gene, color=genedesc)) + 
           geom_point(color="gray") + 
           geom_text() +
-          xlab(paste("FC",thecond)) + 
+          xlab(paste("RGR",thecond)) + 
           ylab(paste("-log10 pval",thecond))
         
       }

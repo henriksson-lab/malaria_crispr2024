@@ -312,39 +312,20 @@ for(curpool in listpools){
               
               
               if(FALSE){
-                ############### R standard nls
+                ############### Exponential growth; R standard nls
                 start_values <- c(a=mean(y), b=0)
                 fit <- nls(y ~ a * exp(b * x),
-                           #weights = sub_longcnt5$weight,  #disabled
                            start = start_values,
                            algorithm = "port",
-                           control = nls.control(maxiter = 1000))  #was 1000
-                
+                           control = nls.control(maxiter = 1000))  
                 slope_mean <- as.data.frame(coef(summary(fit)))[2,"Estimate"]
                 slope_sd <- as.data.frame(coef(summary(fit)))[2,"Std. Error"]
-                
               } 
-              
-              
-              if(FALSE){
-                ### Logistic regression
-                start_values <- c(a=mean(y), b=0)
-                ynew <- y/max(y)
-                
-                model <- glm(ynew ~ x,family=binomial(link='logit'))
-                #produces a warning that we ignore :S 
-                coef(model)
 
-              }
-              
-              
               if(TRUE) {
                 ########## logistic growth, but with pre-fixed maximum capacity to 1
                 #https://www.usu.edu/math/powell/ysa-html/node8.html
-                
-                xold <- x
-                yold <- y
-                
+
                 scalefactor <- max(y)
                 y <- y/scalefactor
                 
@@ -353,66 +334,48 @@ for(curpool in listpools){
                 #?minpack.lm::nls.lm
                 start_values <- c(a=mean(y), b=0)
                 fit <- nlsLM(y ~ a * exp(b * x) / (1 + a * exp(b * x) ),
-                             #weights = sub_longcnt5$weight,  #disabled
                              start = start_values,
                              algorithm = "port",
                              control = nls.control(maxiter = 1000))  #was 1000
-                
-                slope_mean <- as.data.frame(coef(summary(fit)))[2,"Estimate"] #* scalefactor
+                slope_mean <- as.data.frame(coef(summary(fit)))[2,"Estimate"]
                 slope_sd <- as.data.frame(coef(summary(fit)))[2,"Std. Error"]
-                
-                #-0.1528369 first method
               }
               
               
               if(FALSE){
-                ########## logistic growth ) { ###########) { ###########) { ###########) { ########### previous favourite
+                ########## logistic growth, nlsLM; fit maximum capacity  ## previous favourite
                 #https://www.usu.edu/math/powell/ysa-html/node8.html
 
-                ############### Levenberg-Marquardt nls
-                #The more detailed help here. Levenberg-Marquardt from MINPACK
-                #?minpack.lm::nls.lm
                 start_values <- c(a=mean(y), b=0, d=max(y))
                 fit <- nlsLM(y ~ a * exp(b * x) / (1 + a/d * exp(b * x) ),
-                             #weights = sub_longcnt5$weight,  #disabled
                              start = start_values,
                              algorithm = "port",
                              control = nls.control(maxiter = 1000))  #was 1000
-                
                 slope_mean <- as.data.frame(coef(summary(fit)))[2,"Estimate"]
                 slope_sd <- as.data.frame(coef(summary(fit)))[2,"Std. Error"]
-                
               }
               
               
               if(FALSE) {
-                # more reading https://rdrr.io/rforge/nlsr/f/inst/doc/nlsr-nls-nlsLM.pdf
+                #Exponential growth, nlsLM
+                #Comparison of methods https://rdrr.io/rforge/nlsr/f/inst/doc/nlsr-nls-nlsLM.pdf
                 
-                ############### Levenberg-Marquardt nls
-                #The more detailed help here. Levenberg-Marquardt from MINPACK
-                #?minpack.lm::nls.lm
                 start_values <- c(a=mean(y), b=0)
                 fit <- nlsLM(y ~ a * exp(b * x),
-                           #weights = sub_longcnt5$weight,  #disabled
                            start = start_values,
                            algorithm = "port",
                            control = nls.control(maxiter = 1000))  #was 1000
-                
-                #TODO need to extract coef!!
                 slope_mean <- as.data.frame(coef(summary(fit)))[2,"Estimate"]
                 slope_sd <- as.data.frame(coef(summary(fit)))[2,"Std. Error"]
-                
               }
               
               if(FALSE){
+                #Exponential growth, nlsr::nlxb
+                #Comparison of methods https://rdrr.io/rforge/nlsr/f/inst/doc/nlsr-nls-nlsLM.pdf
                 start_values <- c(a=mean(y), b=0)
                 fit <- nlsr::nlxb(y ~ a * exp(b * x),
-                           #weights = sub_longcnt5$weight,  #disabled
                            start = start_values
-  #                         algorithm = "port",
-                           #control = nls.control(maxiter = 1000)
-                           )  #was 1000
-                
+                           ) 
                 slope_mean <-  as.double(coef(fit)[2])
                 thesummary <- summary(fit)
                 slope_sd <- thesummary$Sd[2]  #disagrees a fair bit with above
