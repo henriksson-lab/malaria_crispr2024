@@ -70,4 +70,37 @@ all_grstats <- readRDS("grstats.rds")
 all_timecourses <- readRDS("timecourses.rds")
 all_coverage_stat <- readRDS("coverage_stat.rds")
 
+
+print("======= renaming pools ================ ")
+
+pools_renamed <- list(
+#  cr_2023march_pools="cr_2023march_pools",
+#  cr_2023march_screen="cr_2023march_screen",
+  cr_2024march_half1="48x",
+  cr_2024march_p1="96x",
+#  cr_2024march_p2="p2",
+  cr_2024march_p12="192x"
+)
+
+renamepool <- function(list_in){
+  list_out <- list()
+  for(n in names(list_in)){
+    print(n)
+    if(n %in% names(pools_renamed)){
+      list_out[[pools_renamed[[n]]]] <- list_in[[n]]
+    } else {
+      print(paste("missing",n))
+    }
+  }
+  list_out
+}
+
+
+all_samplemeta <- renamepool(all_samplemeta)
+all_grstats <- renamepool(all_grstats)
+all_timecourses <- renamepool(all_timecourses)
+all_coverage_stat <- renamepool(all_coverage_stat)
+
+
+
 print("========== global done ================")

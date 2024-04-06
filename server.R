@@ -18,7 +18,7 @@ server <- function(input, output, session) {
     current_pool <- input$grstats_pool
     grstats <- all_grstats[[current_pool]]
     
-    updateSelectizeInput(session, 'grstats_volcano', choices = names(grstats$volcano), server = TRUE)
+#    updateSelectizeInput(session, 'grstats_volcano', choices = names(grstats$volcano), server = TRUE)
     updateSelectizeInput(session, 'grstats_scatter', choices = names(grstats$scatterplot), server = TRUE)
     
     grstats <- all_timecourses[[current_pool]]
@@ -84,7 +84,7 @@ server <- function(input, output, session) {
     current_pool <- input$grstats_pool
     print(current_pool)
     grstats <- all_grstats[[current_pool]]
-    thecond <- input$grstats_volcano
+    thecond <- "NP BL6"#input$grstats_volcano
     
     if(thecond %in% names(grstats$volcano)){
       grstats$volcano[[thecond]]
@@ -96,7 +96,7 @@ server <- function(input, output, session) {
   output$plot_grstats_volcano <- renderPlotly({
     
     
-    thecond <- input$grstats_volcano
+    thecond <- "NP BL6" #input$grstats_volcano
     toplot <- get_current_volcano()
     
     if(input$grstats_y=="-Log10 p, different from control genes"){
@@ -121,7 +121,7 @@ server <- function(input, output, session) {
         theplot <- ggplot(toplot, aes(fc, y, label=gene, color=genecat)) + 
           geom_point(color="gray") + 
           geom_text() +
-          xlab(paste("RGR",thecond)) + 
+          xlab(paste("RGR")) + 
           ylab(yname)
       } else {
         
@@ -132,7 +132,7 @@ server <- function(input, output, session) {
         
         theplot <- ggplot(toplot, aes(fc, y, label=gene, color=genecat)) + 
           geom_point() + 
-          xlab(paste("RGR",thecond)) + 
+          xlab(paste("RGR")) + 
           ylab(yname) +
           scale_color_manual(values = c("chartreuse4", "red", "dodgerblue", "turquoise3")) #"Dispensible","Essential","Slow growers","Other"
         #https://sape.inf.usi.ch/quick-reference/ggplot2/colour
@@ -266,25 +266,28 @@ server <- function(input, output, session) {
     
     ########### Average together based on user input
     
-    if(input$grstats_avg_grna){
+    print(666)
+    print(head(grstats))
+    
+    if(grstats_avg_grna){
       grstats <- sqldf::sqldf(
         "select day, avg(y) as y, gene, primed, genotype, mouse_ref from grstats group by mouse_ref, gene, day, primed, genotype")
       grstats$grna <- paste(grstats$gene,"*",sep="")
     }
     
-    if(input$grstats_avg_mouse){
+    if(grstats_avg_mouse){
       grstats <- sqldf::sqldf(
         "select day, avg(y) as y, gene, grna, primed, genotype from grstats group by gene, grna, day, primed, genotype")
       grstats$mouse_ref <- "m*"
     }
     
-    if(input$grstats_avg_genotype){
+    if(grstats_avg_genotype){
       grstats <- sqldf::sqldf(
         "select day, avg(y) as y, gene, grna, primed from grstats group by gene, grna, day, primed")
       grstats$primed <- "g*"
     }
     
-    if(input$grstats_avg_treatment){
+    if(grstats_avg_treatment){
       grstats <- sqldf::sqldf(
         "select day, avg(y) as y, gene, grna, genotype from grstats group by gene, grna, day, genotype")
       grstats$primed <- "t*"
@@ -301,22 +304,22 @@ server <- function(input, output, session) {
     
     ######## Decide coloring strategy
     grstats$colorby <- grstats$mouse_ref
-    if(input$grstats_colorby=="Gene"){
+    if(grstats_colorby=="Gene"){
       grstats$colorby <- grstats$gene
     }
-    if(input$grstats_colorby=="Genotype"){
+    if(grstats_colorby=="Genotype"){
       grstats$colorby <- grstats$genotype
     }
-    if(input$grstats_colorby=="Treatment"){
+    if(grstats_colorby=="Treatment"){
       grstats$colorby <- grstats$primed
     }
-    if(input$grstats_colorby=="Genotype+Treatment"){
+    if(grstats_colorby=="Genotype+Treatment"){
       grstats$colorby <- paste(grstats$genotype,grstats$primed)
     }
-    if(input$grstats_colorby=="Genetic construct"){
+    if(grstats_colorby=="Genetic construct"){
       grstats$colorby <- paste(grstats$grna)
     }
-    if(input$grstats_colorby=="Genotype+Treatment+Genetic construct"){
+    if(grstats_colorby=="Genotype+Treatment+Genetic construct"){
       grstats$colorby <- paste(grstats$genotype,grstats$primed, grstats$grna)
     }
     
@@ -343,73 +346,10 @@ server <- function(input, output, session) {
     
     plotTC(
       grstats,
-      input$grstats_avg_grna, input$grstats_avg_mouse, input$grstats_avg_genotype, input$grstats_avg_treatment,
+      input$grstats_avg_grna, input$grstats_avg_mouse, FALSE, FALSE, #input$grstats_avg_genotype, input$grstats_avg_treatment,
       input$grstats_gene, input$grstats_colorby
     )
       
-    # 
-    # ########### Average together based on user input
-    # 
-    # if(input$grstats_avg_grna){
-    #   grstats <- sqldf::sqldf(
-    #     "select day, avg(y) as y, gene, primed, genotype, mouse_ref from grstats group by mouse_ref, gene, day, primed, genotype")
-    #   grstats$grna <- paste(grstats$gene,"*",sep="")
-    # }
-    # 
-    # if(input$grstats_avg_mouse){
-    #   grstats <- sqldf::sqldf(
-    #     "select day, avg(y) as y, gene, grna, primed, genotype from grstats group by gene, grna, day, primed, genotype")
-    #   grstats$mouse_ref <- "m*"
-    # }
-    # 
-    # if(input$grstats_avg_genotype){
-    #   grstats <- sqldf::sqldf(
-    #     "select day, avg(y) as y, gene, grna, primed from grstats group by gene, grna, day, primed")
-    #   grstats$primed <- "g*"
-    # }
-    # 
-    # if(input$grstats_avg_treatment){
-    #   grstats <- sqldf::sqldf(
-    #     "select day, avg(y) as y, gene, grna, genotype from grstats group by gene, grna, day, genotype")
-    #   grstats$primed <- "t*"
-    # }
-    # 
-    # grstats$group <- paste(grstats$grna, grstats$mouse_ref, grstats$primed, grstats$genotype)
-    # 
-    # ######## Only show one gene, optionally
-    # current_gene <- input$grstats_gene
-    # if(current_gene!=""){
-    #   grstats <- grstats[grstats$gene==current_gene,,drop=FALSE]
-    # }
-    # 
-    # 
-    # ######## Decide coloring strategy
-    # grstats$colorby <- grstats$mouse_ref
-    # if(input$grstats_colorby=="Gene"){
-    #   grstats$colorby <- grstats$gene
-    # }
-    # if(input$grstats_colorby=="Genotype"){
-    #   grstats$colorby <- grstats$genotype
-    # }
-    # if(input$grstats_colorby=="Treatment"){
-    #   grstats$colorby <- grstats$primed
-    # }
-    # if(input$grstats_colorby=="Genotype+Treatment"){
-    #   grstats$colorby <- paste(grstats$genotype,grstats$primed)
-    # }
-    # if(input$grstats_colorby=="Genetic construct"){
-    #   grstats$colorby <- paste(grstats$grna)
-    # }
-    # if(input$grstats_colorby=="Genotype+Treatment+Genetic construct"){
-    #   grstats$colorby <- paste(grstats$genotype,grstats$primed, grstats$grna)
-    # }
-    # 
-    # ######## The actual plotting
-    # ggplotly(ggplot(grstats,aes(x=day,y=y, group=group, color=colorby, text=group)) + 
-    #            geom_line()+
-    #            xlab("Day")+
-    #            ggtitle(""), tooltip = c("x", "y", "color", "text", "group"))
-
   })
   
     

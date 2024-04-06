@@ -49,14 +49,14 @@ tab_grstats <- fluidPage(
             selected = names(all_grstats)[1]
           ),
           
-          selectInput(
-            inputId = "grstats_volcano",
-            label = "Volcano:",
-            selectize = TRUE,
-            multiple = FALSE,
-            choices = c(""), 
-            selected = NULL
-          ),
+#          selectInput(
+ #           inputId = "grstats_volcano",
+  #          label = "Volcano:",
+   #         selectize = TRUE,
+    #        multiple = FALSE,
+     #       choices = c(""), 
+      #      selected = NULL
+       #   ),
         
           selectInput(
             inputId = "grstats_y",
@@ -80,102 +80,70 @@ tab_grstats <- fluidPage(
     column(6,
        wellPanel(
          
-         plotlyOutput("plot_grstats_scatterplot", height = "400px"),
-  
-         #div(class = "label-left",
-             
-             selectInput(
-               inputId = "grstats_scatter",
-               label = "Compare:",
-               selectize = TRUE,
-               multiple = FALSE,
-               choices = c(""), 
-               selected = NULL
-             ),
-             
-             selectInput(
-               inputId = "grstats_scatter_type",
-               label = "Representation:",
-               selectize = FALSE,
-               multiple = FALSE,
-               choices = c("Volcano plot","RGR scatter plot"), 
-               selected = "Volcano plot"
-             ),
-         #)
-
+         ########### Top right
+         ########### Top right
+         ########### Top right
+         
+         plotlyOutput("plot_grstats_tcplot", height = "400px"),
+         
+         
+         
+         selectInput(
+           inputId = "grstats_gene",
+           label = "Gene:",
+           selectize = TRUE,
+           multiple = FALSE,
+           choices = c(""), 
+           selected = NULL
+         ),
+         
+         checkboxInput(
+           inputId = "grstats_avg_mouse",
+           label = "Average across mice",
+           value = TRUE
+         ),
+         
+         checkboxInput(
+           inputId = "grstats_avg_grna",
+           label = "Average across sgRNAs",
+           value = TRUE
+         ),
+         
+#         checkboxInput(
+ #          inputId = "grstats_avg_genotype",
+  #         label = "Average across genotypes",
+   #        value = FALSE
+    #     ),
+         
+     #    checkboxInput(
+#           inputId = "grstats_avg_treatment",
+ #          label = "Average across treatments",
+  #         value = FALSE
+   #      ),
+         
+         selectInput(
+           inputId = "grstats_colorby",
+           label = "Color by:",
+           multiple = FALSE,
+           choices = c("Gene","Mouse"
+                       #,"Genotype","Treatment","Genotype+Treatment","Genotype+Treatment+Genetic construct"
+                       ), 
+           selected = c("Gene")
+         ),
+         
+         selectInput(
+           inputId = "grstats_units",
+           label = "Units:",
+           multiple = FALSE,
+           selectize = TRUE,
+           choices = c("Count/AllCount","Count/ControlCount"), 
+           selected = c("Count/AllCount")
+         ),
          
          
        )
     ),
     
-    column(12,
-       fluidPage(
-         column(6,
-            wellPanel(
-              plotlyOutput("plot_grstats_tcplot", height = "400px")
-            )
-         ),
-         column(6,
-            wellPanel(
-              
-              #div(class = "label-left",
-                    
-                selectInput(
-                  inputId = "grstats_gene",
-                  label = "Gene:",
-                  selectize = TRUE,
-                  multiple = FALSE,
-                  choices = c(""), 
-                  selected = NULL
-                ),
-                
-                checkboxInput(
-                  inputId = "grstats_avg_mouse",
-                  label = "Average across mice",
-                  value = TRUE
-                ),
-                
-                checkboxInput(
-                  inputId = "grstats_avg_grna",
-                  label = "Average across genetic constructs",
-                  value = TRUE
-                ),
-  
-                checkboxInput(
-                  inputId = "grstats_avg_genotype",
-                  label = "Average across genotypes",
-                  value = FALSE
-                ),
-  
-                checkboxInput(
-                  inputId = "grstats_avg_treatment",
-                  label = "Average across treatments",
-                  value = FALSE
-                ),
-                
-                selectInput(
-                  inputId = "grstats_colorby",
-                  label = "Color by:",
-                  multiple = FALSE,
-                  choices = c("Gene","Mouse","Genotype","Treatment","Genotype+Treatment","Genotype+Treatment+Genetic construct"), 
-                  selected = c("Gene")
-                ),
-                
-                selectInput(
-                  inputId = "grstats_units",
-                  label = "Units:",
-                  multiple = FALSE,
-                  selectize = TRUE,
-                  choices = c("Count/AllCount","Count/ControlCount"), 
-                  selected = c("Count/AllCount")
-                ),
-                
-                
-              #)
-            )
-         )
-       )
-    ),
 
 )
 
@@ -222,7 +190,7 @@ ui <- fluidPage(
   
   
   
-  titlePanel("Bushell lab malaria screen viewer"),
+  titlePanel("Bushell lab, malaria screen 2024"),
 
   tabsetPanel(type = "tabs",
               tabPanel("Gene RGRs", tab_grstats),

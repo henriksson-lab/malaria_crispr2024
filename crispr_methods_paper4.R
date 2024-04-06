@@ -7,16 +7,17 @@ library(plotROC)
 
 
 pools_renamed <- list(
+  cr_2023march_pools="cr_2023march_pools",
   cr_2024march_half1="48x",
   cr_2024march_p1="96x",
   cr_2024march_p2="p2",
   cr_2024march_p12="192x"
 )
 
-all_samplemeta <- readRDS("/corgi/websites/malariascreenviewer/samplemeta.rds")
-all_grstats <- readRDS("/corgi/websites/malariascreenviewer/grstats.rds")
-all_timecourses <- readRDS("/corgi/websites/malariascreenviewer/timecourses.rds")
-all_coverage_stat <- readRDS("/corgi/websites/malariascreenviewer/coverage_stat.rds")
+all_samplemeta <- readRDS("/corgi/websites/malaria_crispr2024/samplemeta.rds")
+all_grstats <- readRDS("/corgi/websites/malaria_crispr2024/grstats.rds")
+all_timecourses <- readRDS("/corgi/websites/malaria_crispr2024/timecourses.rds")
+all_coverage_stat <- readRDS("/corgi/websites/malaria_crispr2024/coverage_stat.rds")
 
 
 ################################################################################
@@ -52,7 +53,7 @@ ggplot(ligpools, aes(ligationwell, frac*100, fill=grna)) + geom_bar(stat="identi
   theme(legend.position = "none")+
   theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
 current_pool <- "cr_2023march_pools"
-ggsave(sprintf("/corgi/websites/malariascreenviewer/plots_crispr/fraction_per_ligpool %s.pdf",current_pool), width = 3, height = 3)  
+ggsave(sprintf("/corgi/websites/malaria_crispr2024/plots_crispr/fraction_per_ligpool %s.pdf",current_pool), width = 3, height = 3)  
 
   
 ################################################################################
@@ -92,7 +93,7 @@ for(current_pool in c("cr_2024march_half1","cr_2024march_p1","cr_2024march_p12")
     theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
     
 
-  ggsave(sprintf("/corgi/websites/malariascreenviewer/plots_crispr/fraction_per_ligpool %s.pdf",current_pool), width = numpools*0.3, height = 3)  
+  ggsave(sprintf("/corgi/websites/malaria_crispr2024/plots_crispr/fraction_per_ligpool %s.pdf",current_pool), width = numpools*0.3, height = 3)  
 }
 
 #current_pool <- "cr_2023march_screen"
@@ -134,7 +135,7 @@ for(curpool in listpools){
 }  
 totp <- egg::ggarrange(plots=listplot)
 totp
-ggsave(plot=totp, "/corgi/websites/malariascreenviewer/plots_crispr/scatterplot_sgrna_fc.pdf", width = 4, height = 10)
+ggsave(plot=totp, "/corgi/websites/malaria_crispr2024/plots_crispr/scatterplot_sgrna_fc.pdf", width = 4, height = 10)
 
 
 
@@ -188,7 +189,7 @@ for(curpool in listpools){
 totp <- egg::ggarrange(plots=listplot)
 totp
 
-ggsave(plot=totp, "/corgi/websites/malariascreenviewer/plots_crispr/scatterplot_pool_reproducibility.pdf", width = 3, height = 5)
+ggsave(plot=totp, "/corgi/websites/malaria_crispr2024/plots_crispr/scatterplot_pool_reproducibility.pdf", width = 3, height = 5)
 
 
 
@@ -251,7 +252,7 @@ ggplot(avgpool, aes(fc, 1/sd, color=genecat)) +
   theme(legend.position = "none") +
   scale_color_manual(values = c("chartreuse4", "red", "dodgerblue", "turquoise3")) #"Dispensable","Essential","Slow growers","Other"
 
-ggsave("/corgi/websites/malariascreenviewer/plots_crispr/composite_histograms.pdf", width = 10, height = 10)
+ggsave("/corgi/websites/malaria_crispr2024/plots_crispr/composite_histograms.pdf", width = 10, height = 10)
 
 
 
@@ -264,7 +265,7 @@ ggplot(tovery, aes(d = obs, m = fc)) + geom_roc(labels=FALSE) +
   theme(legend.position = "none") +
   geom_abline(slope=1, intercept=0,linetype=3)
 
-ggsave("/corgi/websites/malariascreenviewer/plots_crispr/composite_roc.pdf", width = 4, height = 3)
+ggsave("/corgi/websites/malaria_crispr2024/plots_crispr/composite_roc.pdf", width = 4, height = 3)
 
 
 ################################################################################
@@ -299,7 +300,7 @@ if(FALSE){
   totp <- egg::ggarrange(plots=listplot)
   totp
   
-  ggsave(plot = totp, "/corgi/websites/malariascreenviewer/plots_crispr/roc_perscreen.pdf", width = 4, height = 8)
+  ggsave(plot = totp, "/corgi/websites/malaria_crispr2024/plots_crispr/roc_perscreen.pdf", width = 4, height = 8)
 }
 
 ####### Plot all in one
@@ -327,14 +328,14 @@ ggplot(alldat, aes(d = obs, m = fc, color=screen)) + geom_roc(labels=FALSE) +
   theme_bw()+
   #theme(legend.position = "none") +
   geom_abline(slope=1, intercept=0,linetype=3)
-ggsave("/corgi/websites/malariascreenviewer/plots_crispr/roc_perscreen_inone.pdf", width = 4, height = 3)
+ggsave("/corgi/websites/malaria_crispr2024/plots_crispr/roc_perscreen_inone.pdf", width = 4, height = 3)
 
 allauc$screen <- factor(allauc$screen, levels=c("48x","96x","192x"))
 ggplot(allauc, aes(screen, auc)) + 
   theme_bw()+
   theme(legend.position = "none") +
   geom_bar(stat="identity")
-ggsave("/corgi/websites/malariascreenviewer/plots_crispr/roc_perscreen_barplot.pdf", width = 4, height = 3)
+ggsave("/corgi/websites/malaria_crispr2024/plots_crispr/roc_perscreen_barplot.pdf", width = 4, height = 3)
 
 
   
@@ -369,7 +370,7 @@ for(curpool in c("cr_2024march_half1")){
     list_all_plot[[curgene]] <- p1
   }
   ptot <- egg::ggarrange(plots=list_all_plot, ncol=1)
-  ggsave(sprintf("/corgi/websites/malariascreenviewer/plots_crispr/all_lineplot %s.pdf",curpool), width = 3, height = 2*length(list_all_plot), plot = ptot, limitsize=FALSE)
+  ggsave(sprintf("/corgi/websites/malaria_crispr2024/plots_crispr/all_lineplot %s.pdf",curpool), width = 3, height = 2*length(list_all_plot), plot = ptot, limitsize=FALSE)
 }  
 
 
@@ -404,7 +405,7 @@ for(current_pool in c("cr_2024march_half1","cr_2024march_p1","cr_2024march_p12")
     theme_bw() + 
     theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))+
     ggrepel::geom_text_repel(data=toplot[toplot$gene %in% highlight_genes,],min.segment.length=0,nudge_x = 0.5, nudge_y = 0.3, show.legend = FALSE)
-  ggsave(sprintf("/corgi/websites/malariascreenviewer/plots_crispr/volcano %s.pdf",current_pool), width = 7, height = 6)
+  ggsave(sprintf("/corgi/websites/malaria_crispr2024/plots_crispr/volcano %s.pdf",current_pool), width = 7, height = 6)
 }
 
 #1322400 should be red, essential
@@ -437,7 +438,7 @@ for(curpool in c("cr_2024march_half1","cr_2024march_p1","cr_2024march_p12")){ #,
     list_all_plot[[curgene]] <- p1
   }
   ptot <- egg::ggarrange(plots=list_all_plot, nrow=1)
-  ggsave(sprintf("/corgi/websites/malariascreenviewer/plots_crispr/highlight_lineplot %s.pdf",curpool), width = 6, height = 2, plot = ptot, limitsize=FALSE)
+  ggsave(sprintf("/corgi/websites/malaria_crispr2024/plots_crispr/highlight_lineplot %s.pdf",curpool), width = 6, height = 2, plot = ptot, limitsize=FALSE)
 }  
 
 
@@ -476,7 +477,7 @@ for(curpool in listpools){
   geneinfo$xlabcol[geneinfo$genecat == "Slow"] <- "dodgerblue"
   geneinfo$xlabcol[geneinfo$genecat == "Slow growers"] <- "dodgerblue"
   
-  pdf(sprintf("/corgi/websites/malariascreenviewer/plots_crispr/gridpanel_per_gene %s.pdf",curpool), width = 7, height = max(geneinfo$grid_y)*1.1)
+  pdf(sprintf("/corgi/websites/malaria_crispr2024/plots_crispr/gridpanel_per_gene %s.pdf",curpool), width = 7, height = max(geneinfo$grid_y)*1.1)
   grid.newpage()
   vp <- viewport(layout = grid.layout(max(geneinfo$grid_y), max(geneinfo$grid_x)))
   pushViewport(vp)
