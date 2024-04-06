@@ -37,12 +37,12 @@ server <- function(input, output, session) {
   output$plotSamplemetaUmap <- renderPlot(height=700, {
 
     current_pool <- input$samplemeta_pool
-    print(current_pool)
+    #print(current_pool)
     
     samplemeta <- all_samplemeta[[current_pool]]
     coverage_stat <- all_coverage_stat[[current_pool]]
     
-    print(samplemeta)
+    #print(samplemeta)
     
     samplemeta$day <- sprintf("d%s", samplemeta$day)
     p1 <- ggplot(samplemeta, aes(umap1,umap2,color=mouse_ref))+geom_point()
@@ -108,8 +108,15 @@ server <- function(input, output, session) {
     }
     
     toplot$genecat <- factor(toplot$genecat, levels=c("Dispensable","Essential","Slow growers","Other"))
-    
+
     if(nrow(toplot)>0){
+      
+      #Fix names of genes
+      #if(any(str_length(toplot$gene)==str_length("PBANKA_071020"))){
+      #  toplot$gene <- paste0(toplot$gene, "0")
+      #}
+      
+      
       if(input$grstats_show_gene_name){
         theplot <- ggplot(toplot, aes(fc, y, label=gene, color=genecat)) + 
           geom_point(color="gray") + 
@@ -119,9 +126,8 @@ server <- function(input, output, session) {
       } else {
         
         #For hover, add gene symbol
-        toplot <- merge(toplot,geneinfo)
-        #toplot$gene[toplot$geneDesc!=""] <- paste(toplot$gene[toplot$geneDesc!=""], "--", toplot$geneDesc[toplot$geneDesc!=""])
-        toplot$gene <- paste(toplot$gene, ";", toplot$geneName, ";", toplot$geneDesc)
+        toplot <- merge(toplot,geneinfo,all.x=TRUE)
+        toplot$gene <- paste0(toplot$gene, "\nName: ", toplot$geneName, "\nDescription: ", toplot$geneDesc)
         
         
         theplot <- ggplot(toplot, aes(fc, y, label=gene, color=genecat)) + 
@@ -145,8 +151,8 @@ server <- function(input, output, session) {
       toplot <- get_current_volcano()
 
       event_data <- event_data("plotly_click", source = "plot_grstats_volcano")
-      print("plotly_click on plot_grstats_volcano. event data:")
-      print(event_data)
+      #print("plotly_click on plot_grstats_volcano. event data:")
+      #print(event_data)
       
       if(input$grstats_y=="-Log10 p, different from control genes"){
         toplot$y <- toplot$logp
@@ -161,15 +167,15 @@ server <- function(input, output, session) {
       
       #clicked_gene <- toplot$gene[event_data$pointNumber+1]  #plotly seems to do 0-indexing
       clicked_gene <- toplot$gene[1] 
-      print(clicked_gene)
+      #print(clicked_gene)
       clicked_gene <- str_split_fixed(clicked_gene," ",3)[1] ## remove gene name in hover
-      print(toplot)
-      print(clicked_gene)
-      print("")
-      print("")
-      print("")
-      print("")
-      print("")
+      #print(toplot)
+      #print(clicked_gene)
+      #print("")
+      #print("")
+      #print("")
+      #print("")
+      #print("")
       updateSelectInput(session, "grstats_gene", selected = clicked_gene)
     }
   )  
@@ -333,7 +339,7 @@ server <- function(input, output, session) {
     
     ## Pick the right unit to show
     grstats <- grstats[[input$grstats_units]]  
-    print(head(grstats))
+    #print(head(grstats))
     
     plotTC(
       grstats,

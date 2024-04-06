@@ -44,14 +44,15 @@ listpools_crispr1 <- c(
 
 
 listpools <- c(
-  #listpools_barseq
-  #listpools_crispr1
+#  listpools_barseq,
+  #listpools_crispr1,
 
+  "cr_2023march_screen", #Needed for supplemental; hide in viewer later?
 
   "cr_2024march_half1",
   "cr_2024march_p1",
-  "cr_2024march_p12",
-  "cr_2024march_p2"
+  "cr_2024march_p12"
+  #"cr_2024march_p2"
 )
 
 timecourses <- list()
@@ -117,10 +118,20 @@ for(curpool in listpools){
   
   
   ### Extract FIRST input
-  input_sampleid <- samplemeta$sampleid[samplemeta$is_input][1]
-  coverage_stat <- data.frame(
-    grna=rownames(counts),
-    cnt=counts[,input_sampleid])
+  if(sum(samplemeta$is_input)>0){
+    print("Using input sample as coverage")
+    input_sampleid <- samplemeta$sampleid[samplemeta$is_input][1]
+    coverage_stat <- data.frame(
+      grna=rownames(counts),
+      cnt=counts[,input_sampleid]
+    )
+  } else {
+    print("Using average sample as coverage")
+    coverage_stat <- data.frame(
+      grna=rownames(counts),
+      cnt=rowSums(counts)
+    )
+  }
   coverage_stat <- merge(allgeneconstructs,coverage_stat)
   all_coverage_stat[[curpool]] <- coverage_stat
   
@@ -210,8 +221,9 @@ for(curpool in listpools){
   cnt.umap <- umap(t(counts), config=umap.settings)
   samplemeta$umap1 <- cnt.umap$layout[,1]
   samplemeta$umap2 <- cnt.umap$layout[,2]
-  
-  #ggplot(samplemeta, aes(umap1,umap2, label=paste(sampleid)))+ geom_point(color="gray") + geom_text()
+  if(FALSE){
+    ggplot(samplemeta, aes(umap1,umap2, label=paste(sampleid)))+ geom_point(color="gray") + geom_text()
+  }
   #table(sort(samplemeta$samplename))
   
   
@@ -272,7 +284,9 @@ for(curpool in listpools){
           
 #          if(nrow(sub_longcnt2)>0 & !(curstate %in% badstates) & paste(curpool, themouse, thegeno, thepheno)!="cr_2023aug_p24 m2 BL6 NP" &
 #             paste(curpool, themouse, thegeno, thepheno)!="cr_2023aug_p24 m2 BL6 NP"){ #weighted
-          if(nrow(sub_longcnt2)>0 & !(curstate %in% badstates) & paste(curpool, themouse, thegeno, thepheno)!="barseq_priming_Candidatepool1 m4 BL6 NP"){
+          if(nrow(sub_longcnt5)>0 & nrow(sub_longcnt2)>0 & !(curstate %in% badstates) & paste(curpool, themouse, thegeno, thepheno)!="barseq_priming_Candidatepool1 m4 BL6 NP"){
+            
+            
             result <- try({
 
               ############ Figure out weights              
@@ -291,9 +305,15 @@ for(curpool in listpools){
               # fit the model 
               x <- sub_longcnt5$day
               y <- sub_longcnt5$cnt
-              start_values <- c(a=mean(y), b=0)
+              if(FALSE){
+                start_values
+                plot(x,y)
+              }
+              
+              
               if(FALSE){
                 ############### R standard nls
+                start_values <- c(a=mean(y), b=0)
                 fit <- nls(y ~ a * exp(b * x),
                            #weights = sub_longcnt5$weight,  #disabled
                            start = start_values,
@@ -305,12 +325,73 @@ for(curpool in listpools){
                 
               } 
               
+              
+              if(FALSE){
+                ### Logistic regression
+                start_values <- c(a=mean(y), b=0)
+                ynew <- y/max(y)
+                
+                model <- glm(ynew ~ x,family=binomial(link='logit'))
+                #produces a warning that we ignore :S 
+                coef(model)
+
+              }
+              
+              
               if(TRUE) {
+                ########## logistic growth, but with pre-fixed maximum capacity to 1
+                #https://www.usu.edu/math/powell/ysa-html/node8.html
+                
+                xold <- x
+                yold <- y
+                
+                scalefactor <- max(y)
+                y <- y/scalefactor
+                
+                ############### Levenberg-Marquardt nls
+                #The more detailed help here. Levenberg-Marquardt from MINPACK
+                #?minpack.lm::nls.lm
+                start_values <- c(a=mean(y), b=0)
+                fit <- nlsLM(y ~ a * exp(b * x) / (1 + a * exp(b * x) ),
+                             #weights = sub_longcnt5$weight,  #disabled
+                             start = start_values,
+                             algorithm = "port",
+                             control = nls.control(maxiter = 1000))  #was 1000
+                
+                slope_mean <- as.data.frame(coef(summary(fit)))[2,"Estimate"] #* scalefactor
+                slope_sd <- as.data.frame(coef(summary(fit)))[2,"Std. Error"]
+                
+                #-0.1528369 first method
+              }
+              
+              
+              if(FALSE){
+                ########## logistic growth ) { ###########) { ###########) { ###########) { ########### previous favourite
+                #https://www.usu.edu/math/powell/ysa-html/node8.html
+
+                ############### Levenberg-Marquardt nls
+                #The more detailed help here. Levenberg-Marquardt from MINPACK
+                #?minpack.lm::nls.lm
+                start_values <- c(a=mean(y), b=0, d=max(y))
+                fit <- nlsLM(y ~ a * exp(b * x) / (1 + a/d * exp(b * x) ),
+                             #weights = sub_longcnt5$weight,  #disabled
+                             start = start_values,
+                             algorithm = "port",
+                             control = nls.control(maxiter = 1000))  #was 1000
+                
+                slope_mean <- as.data.frame(coef(summary(fit)))[2,"Estimate"]
+                slope_sd <- as.data.frame(coef(summary(fit)))[2,"Std. Error"]
+                
+              }
+              
+              
+              if(FALSE) {
                 # more reading https://rdrr.io/rforge/nlsr/f/inst/doc/nlsr-nls-nlsLM.pdf
                 
                 ############### Levenberg-Marquardt nls
                 #The more detailed help here. Levenberg-Marquardt from MINPACK
                 #?minpack.lm::nls.lm
+                start_values <- c(a=mean(y), b=0)
                 fit <- nlsLM(y ~ a * exp(b * x),
                            #weights = sub_longcnt5$weight,  #disabled
                            start = start_values,
@@ -324,6 +405,7 @@ for(curpool in listpools){
               }
               
               if(FALSE){
+                start_values <- c(a=mean(y), b=0)
                 fit <- nlsr::nlxb(y ~ a * exp(b * x),
                            #weights = sub_longcnt5$weight,  #disabled
                            start = start_values
@@ -336,8 +418,6 @@ for(curpool in listpools){
                 slope_sd <- thesummary$Sd[2]  #disagrees a fair bit with above
               }
               
-              #"m4 PBANKA_070700 BL6 NP"
-              
 
               fitted_gr[[paste(themouse, thegrna, thegeno, thepheno)]] <- data.frame(
                 mouse=themouse,
@@ -347,12 +427,11 @@ for(curpool in listpools){
                 gr_sd=slope_sd,
                 gr_mean=slope_mean
               )
+              #print(paste("Worked",curstate))
             }, silent = FALSE) ## Ignore those we cannot fit
-            print(paste("Failed",curstate))
-            #print(paste("Failed",result))
-            
+
           }
-          
+
         }
       }
       
@@ -363,6 +442,12 @@ for(curpool in listpools){
     stop("fitted_gr null, so empty; no models converged")
   }
 
+  print(paste("Fitted # grna:",length(unique(fitted_gr$grna))))
+  print(paste("Fitted # gene:",length(unique(str_split_fixed(fitted_gr$grna,"gRNA",2)[,1]))))
+  
+  #ggplot(fitted_gr, aes(gr_mean, 1/gr_sd))+ geom_point()
+  
+  
   ##############################################################################
   ################### Calculate FCs to control and between conditions ##########
   ##############################################################################
