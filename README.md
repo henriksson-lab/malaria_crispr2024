@@ -12,7 +12,7 @@ MIT license
 
 # Files
 
-* count.R -- takes all FASTQ files (CRISPR or BARSEQ) and outputs count matrices
+* count.R -- takes all FASTQ files and outputs count matrices
 * grstats.R -- takes count files and generates statistics
 * crispr_methods_paper.R -- generates plots for the paper
 
