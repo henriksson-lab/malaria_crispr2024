@@ -1,13 +1,21 @@
+if(FALSE){
+  install.packages("plotROC")
+}
+
 library(ggtext)
 library(ggplot2)
 library(grid)
 library(egg)
-#install.packages("plotROC")
 library(plotROC)
 
+################################################################################
+############## Read data #######################################################
+################################################################################
 
+### Renaming, for display
 pools_renamed <- list(
   cr_2023march_pools="cr_2023march_pools",
+  cr_2023march_screen="22x",
   cr_2024march_half1="48x",
   cr_2024march_p1="96x",
   cr_2024march_p2="p2",
@@ -18,6 +26,7 @@ all_samplemeta <- readRDS("/corgi/websites/malaria_crispr2024/samplemeta.rds")
 all_grstats <- readRDS("/corgi/websites/malaria_crispr2024/grstats.rds")
 all_timecourses <- readRDS("/corgi/websites/malaria_crispr2024/timecourses.rds")
 all_coverage_stat <- readRDS("/corgi/websites/malaria_crispr2024/coverage_stat.rds")
+
 
 
 ################################################################################
@@ -39,23 +48,44 @@ colnames(counts) <- meta$User.ID
 coverage_stat <- melt(counts)
 colnames(coverage_stat) <- c("grna","ligationwell","cnt")
 coverage_stat <- coverage_stat[coverage_stat$cnt>0,]
+coverage_stat$mouse <- str_split_fixed(coverage_stat$ligationwell,"_",5)[,5]
 coverage_stat$ligationwell <- str_split_fixed(coverage_stat$ligationwell,"_",5)[,1]
 coverage_stat$gene <- str_split_fixed(coverage_stat$grna,"gRNA",2)[,1]
 coverage_stat <- merge(expected_gene, coverage_stat)
-ligpools <- sqldf::sqldf("select grna, ligationwell, sum(cnt) as cnt from coverage_stat group by grna, ligationwell")
-ligpools_sum <- sqldf::sqldf("select ligationwell, sum(cnt) as cnt_tot from coverage_stat group by ligationwell")
+ligpools <- sqldf::sqldf("select mouse, grna, ligationwell, sum(cnt) as cnt from coverage_stat group by grna, ligationwell, mouse")
+ligpools_sum <- sqldf::sqldf("select mouse, ligationwell, sum(cnt) as cnt_tot from coverage_stat group by ligationwell, mouse")
 ligpools <- merge(ligpools_sum, ligpools)
 ligpools$frac <- ligpools$cnt/ligpools$cnt_tot
 ligpools$ligationwell <- factor(ligpools$ligationwell, levels = c("pool8","pool12","pool22"))
-ggplot(ligpools, aes(ligationwell, frac*100, fill=grna)) + geom_bar(stat="identity", position = "stack") + 
+
+ligpools$well_rep <- paste(ligpools$ligationwell,str_replace_all(ligpools$mouse,"m","#"))
+ligpools$well_rep <- factor(ligpools$well_rep, levels = rev(c(
+  "pool8 #1","pool8 #2","pool8 #3",
+  "pool12 #1","pool12 #2","pool12 #3",
+  "pool22 #1","pool22 #2","pool22 #3"
+  )))
+
+if(FALSE){
+  current_pool <- "cr_2023march_pools"
+  ggplot(ligpools, aes(well_rep, frac*100, fill=grna)) + geom_bar(stat="identity", position = "stack") + 
+    xlab("") + ylab("Fraction (%)")+
+    theme_bw() + 
+    theme(legend.position = "none")+
+    theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
+  ggsave(sprintf("/corgi/websites/malaria_crispr2024/plots_crispr/fraction_per_ligpool %s A.pdf",current_pool), width = 7, height = 3)  
+}
+
+current_pool <- "cr_2023march_pools"
+ggplot(ligpools, aes(well_rep, frac*100, fill=grna)) + geom_bar(stat="identity", position = "stack") + 
+  coord_flip()+
   xlab("") + ylab("Fraction (%)")+
   theme_bw() + 
   theme(legend.position = "none")+
   theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
-current_pool <- "cr_2023march_pools"
-ggsave(sprintf("/corgi/websites/malaria_crispr2024/plots_crispr/fraction_per_ligpool %s.pdf",current_pool), width = 3, height = 3)  
+ggsave(sprintf("/corgi/websites/malaria_crispr2024/plots_crispr/fraction_per_ligpool %s B.pdf",current_pool), width = 4, height = 2)  
 
-  
+
+
 ################################################################################
 ############## Fig ????  Barchart, relative abundance, pools ###################
 ################################################################################
@@ -140,7 +170,7 @@ ggsave(plot=totp, "/corgi/websites/malaria_crispr2024/plots_crispr/scatterplot_s
 
 
 ################################################################################
-############### Fig xxx Comparison of screen RGRs, scatter plots ################
+############### Fig xxx Comparison of screen RGRs, scatter plots ###############
 ################################################################################
   
 
@@ -242,7 +272,7 @@ dist_disp$p <- dnorm(dist_disp$x,mean=mean_disp, sd=sd_disp)
 dist_disp$type<-"Dispensable"
 
 
-#### Produce plot of all pools
+#### Produce plot of all pools -- 1/d
 avgpool$genecat <- factor(avgpool$genecat, levels=c("Dispensable","Essential","Slow growers","Other"))
 ggplot(avgpool, aes(fc, 1/sd, color=genecat)) + 
   geom_point()+
@@ -253,6 +283,20 @@ ggplot(avgpool, aes(fc, 1/sd, color=genecat)) +
   scale_color_manual(values = c("chartreuse4", "red", "dodgerblue", "turquoise3")) #"Dispensable","Essential","Slow growers","Other"
 
 ggsave("/corgi/websites/malaria_crispr2024/plots_crispr/composite_histograms.pdf", width = 10, height = 10)
+
+
+#### Produce plot of all pools -- rank vs fc
+avgpool$genecat <- factor(avgpool$genecat, levels=c("Dispensable","Essential","Slow growers","Other"))
+#avgpool$fc/sd
+ggplot(avgpool, aes(rank(fc/sd), fc, color=genecat)) + 
+  geom_point()+
+#  geom_line(data=rbind(dist_disp, dist_ess),aes(x,p,color=type))+
+  xlab("rank(RGR/sd)") +
+  ylab("RGR") +
+  theme_bw()+
+  theme(legend.position = "none") +
+  scale_color_manual(values = c("chartreuse4", "red", "dodgerblue", "turquoise3")) #"Dispensable","Essential","Slow growers","Other"
+#ggsave("/corgi/websites/malaria_crispr2024/plots_crispr/composite_histograms.pdf", width = 10, height = 10)
 
 
 

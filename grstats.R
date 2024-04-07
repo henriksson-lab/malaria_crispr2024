@@ -543,16 +543,14 @@ for(curpool in listpools){
   )
   
   list_samplemeta[[curpool]] <- samplemeta
-
-  
 }
   
 
 
 
-saveRDS(all_grstats, file="/corgi/websites/malariascreenviewer/grstats.rds")
-saveRDS(timecourses, file="/corgi/websites/malariascreenviewer/timecourses.rds")
-saveRDS(list_samplemeta, file="/corgi/websites/malariascreenviewer/samplemeta.rds")
-saveRDS(all_coverage_stat, file="/corgi/websites/malariascreenviewer/coverage_stat.rds")
+saveRDS(all_grstats, file="/corgi/websites/malaria_crispr2024//grstats.rds")
+saveRDS(timecourses, file="/corgi/websites/malaria_crispr2024/timecourses.rds")
+saveRDS(list_samplemeta, file="/corgi/websites/malaria_crispr2024/samplemeta.rds")
+saveRDS(all_coverage_stat, file="/corgi/websites/malaria_crispr2024/coverage_stat.rds")
 
 

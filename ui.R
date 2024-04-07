@@ -6,25 +6,17 @@ library(ggplot2)
 ########### Samplemeta #########################################################
 ################################################################################
 
-tab_samplemeta <- #sidebarLayout(
-  
-#  sidebarPanel(
-    
-  fluidPage(
-    selectInput(
-      inputId = "samplemeta_pool",
-      label = "Pool:",
-      selectize = FALSE,
-      multiple = FALSE,
-      choices = names(all_samplemeta), 
-      selected = names(all_samplemeta)[1]
-    ),
+tab_samplemeta <- fluidPage(
+  selectInput(
+    inputId = "samplemeta_pool",
+    label = "Pool:",
+    selectize = FALSE,
+    multiple = FALSE,
+    choices = names(all_samplemeta), 
+    selected = names(all_samplemeta)[1]
+  ),
 
- # ),
-#  mainPanel(
-    #h3("UMAPs pool overview"),
-    plotOutput(outputId = "plotSamplemetaUmap", height = "700px")
-  #)
+  plotOutput(outputId = "plotSamplemetaUmap", height = "700px")
 )
 
 
@@ -33,125 +25,134 @@ tab_samplemeta <- #sidebarLayout(
 ################################################################################
 
 tab_grstats <- fluidPage(
-    column(6,
-      wellPanel(
-        
-        plotlyOutput("plot_grstats_volcano", height = "400px"),
-        
-        #div(class = "label-left",
-            
-          selectInput(
-            inputId = "grstats_pool",
-            label = "Pool:",
-            selectize = FALSE,
-            multiple = FALSE,
-            choices = names(all_grstats), 
-            selected = names(all_grstats)[1]
-          ),
+  column(6,
+    wellPanel(
+      
+      plotlyOutput("plot_grstats_volcano", height = "400px"),
+      
+      #div(class = "label-left",
           
+        selectInput(
+          inputId = "grstats_pool",
+          label = "Pool:",
+          selectize = FALSE,
+          multiple = FALSE,
+          choices = names(all_grstats), 
+          selected = names(all_grstats)[1]
+        ),
+        
 #          selectInput(
- #           inputId = "grstats_volcano",
-  #          label = "Volcano:",
-   #         selectize = TRUE,
-    #        multiple = FALSE,
-     #       choices = c(""), 
-      #      selected = NULL
-       #   ),
+#           inputId = "grstats_volcano",
+#          label = "Volcano:",
+ #         selectize = TRUE,
+  #        multiple = FALSE,
+   #       choices = c(""), 
+    #      selected = NULL
+     #   ),
+      
+        selectInput(
+          inputId = "grstats_y",
+          label = "Y-axis:",
+          selectize = FALSE,
+          multiple = FALSE,
+          choices = c("1/s.d.","-Log10 p, different from control genes"), 
+          selected = NULL
+        ),
+        checkboxInput(
+          inputId = "grstats_show_gene_name",
+          label = "Show gene name",
+          value = FALSE
+        ),
         
-          selectInput(
-            inputId = "grstats_y",
-            label = "Y-axis:",
-            selectize = FALSE,
-            multiple = FALSE,
-            choices = c("1/s.d.","-Log10 p, different from control genes"), 
-            selected = NULL
-          ),
-          checkboxInput(
-            inputId = "grstats_show_gene_name",
-            label = "Show gene name",
-            value = FALSE
-          ),
-          
-        #)
-        
+      #)
+      
 
-      )
-    ),
-    column(6,
-       wellPanel(
-         
-         ########### Top right
-         ########### Top right
-         ########### Top right
-         
-         plotlyOutput("plot_grstats_tcplot", height = "400px"),
-         
-         
-         
-         selectInput(
-           inputId = "grstats_gene",
-           label = "Gene:",
-           selectize = TRUE,
-           multiple = FALSE,
-           choices = c(""), 
-           selected = NULL
-         ),
-         
-         checkboxInput(
-           inputId = "grstats_avg_mouse",
-           label = "Average across mice",
-           value = TRUE
-         ),
-         
-         checkboxInput(
-           inputId = "grstats_avg_grna",
-           label = "Average across sgRNAs",
-           value = TRUE
-         ),
-         
+    )
+  ),
+  column(6,
+     wellPanel(
+       
+       ########### Top right
+       ########### Top right
+       ########### Top right
+       
+       plotlyOutput("plot_grstats_tcplot", height = "400px"),
+       
+       
+       
+       selectInput(
+         inputId = "grstats_gene",
+         label = "Gene:",
+         selectize = TRUE,
+         multiple = FALSE,
+         choices = c(""), 
+         selected = NULL
+       ),
+       
+       checkboxInput(
+         inputId = "grstats_avg_mouse",
+         label = "Average across mice",
+         value = TRUE
+       ),
+       
+       checkboxInput(
+         inputId = "grstats_avg_grna",
+         label = "Average across sgRNAs",
+         value = TRUE
+       ),
+       
 #         checkboxInput(
- #          inputId = "grstats_avg_genotype",
-  #         label = "Average across genotypes",
-   #        value = FALSE
-    #     ),
-         
-     #    checkboxInput(
+#          inputId = "grstats_avg_genotype",
+#         label = "Average across genotypes",
+ #        value = FALSE
+  #     ),
+       
+   #    checkboxInput(
 #           inputId = "grstats_avg_treatment",
- #          label = "Average across treatments",
-  #         value = FALSE
-   #      ),
-         
-         selectInput(
-           inputId = "grstats_colorby",
-           label = "Color by:",
-           multiple = FALSE,
-           choices = c("Gene","Mouse"
-                       #,"Genotype","Treatment","Genotype+Treatment","Genotype+Treatment+Genetic construct"
-                       ), 
-           selected = c("Gene")
-         ),
-         
-         selectInput(
-           inputId = "grstats_units",
-           label = "Units:",
-           multiple = FALSE,
-           selectize = TRUE,
-           choices = c("Count/AllCount","Count/ControlCount"), 
-           selected = c("Count/AllCount")
-         ),
-         
-         
-       )
-    ),
-    
-
+#          label = "Average across treatments",
+#         value = FALSE
+ #      ),
+       
+       selectInput(
+         inputId = "grstats_colorby",
+         label = "Color by:",
+         multiple = FALSE,
+         choices = c("Gene","Mouse"
+                     #,"Genotype","Treatment","Genotype+Treatment","Genotype+Treatment+Genetic construct"
+                     ), 
+         selected = c("Gene")
+       ),
+       
+       selectInput(
+         inputId = "grstats_units",
+         label = "Units:",
+         multiple = FALSE,
+         selectize = TRUE,
+         choices = c("Count/AllCount","Count/ControlCount"), 
+         selected = c("Count/AllCount")
+       ),
+       
+       
+     )
+  ),
 )
 
 ################################################################################
 ########### About page #########################################################
 ################################################################################
 
-tab_about <- verbatimTextOutput("todo description of project here")
+tab_about <- fluidPage(
+  h1(
+    "About"
+  ),
+  p(
+    "This is an interactive Shiny-based app that visualises the analysed data for CRISPR screens using the PbHiT system in the rodent malaria parasite Plasmodium berghei” as described in Jonsdottir et al. ",
+    "DOI: xxxxx"
+  ),
+  p(
+    "Generated by the Bushell lab at Umeå University.", tags$a(href="http://www.bushelllab.com/", "http://www.bushelllab.com/")
+  )
+)
 
 
 
