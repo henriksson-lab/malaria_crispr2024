@@ -9,10 +9,13 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # Command to install standard R packages from CRAN; enter the list of required packages for your app here
-RUN Rscript -e 'install.packages(c("shiny","tidyverse","BiocManager","plotly","Cairo","shinyjs","matlib","egg","logging","naturalsort","sqldf"))'
+RUN Rscript -e 'install.packages(c("shiny","tidyverse","BiocManager","plotly","Cairo","shinyjs","matlib","egg","logging","naturalsort","sqldf","patchwork"))'
 
 # Command to install packages from Bioconductor; enter the list of required Bioconductor packages for your app here
 RUN Rscript -e 'BiocManager::install(c("Biostrings"),ask = F)'
+
+RUN Rscript -e 'install.packages(c("reshape2"))'
+RUN Rscript -e 'install.packages(c("cowplot"))'
 
 RUN rm -rf /srv/shiny-server/*
 #COPY /app/ /srv/shiny-server/
