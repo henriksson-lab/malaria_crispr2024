@@ -281,7 +281,6 @@ ggplot(avgpool, aes(fc, 1/sd, color=genecat)) +
   theme_bw()+
   theme(legend.position = "none") +
   scale_color_manual(values = c("chartreuse4", "red", "dodgerblue", "turquoise3")) #"Dispensable","Essential","Slow growers","Other"
-
 ggsave("/corgi/websites/malaria_crispr2024/plots_crispr/composite_histograms.pdf", width = 10, height = 10)
 
 
@@ -298,6 +297,47 @@ ggplot(avgpool, aes(rank(fc/sd), fc, color=genecat)) +
   scale_color_manual(values = c("chartreuse4", "red", "dodgerblue", "turquoise3")) #"Dispensable","Essential","Slow growers","Other"
 #ggsave("/corgi/websites/malaria_crispr2024/plots_crispr/composite_histograms.pdf", width = 10, height = 10)
 
+
+
+
+
+
+
+#### Logistic regression to determine gene type
+totrain <- avgpool[avgpool$genecat %in% c("Dispensable","Essential"),]
+totrain$pheno <- (totrain$genecat=="Essential") + 0
+logistic_model <- glm(pheno ~ fc,
+                      data = totrain,
+                      family = "binomial")
+dist_logistic <- data.frame(
+  fc=seq(from=min(avgpool$fc),to=max(avgpool$fc), by=0.01)
+)
+dist_logistic$p <- predict(logistic_model, dist_logistic, type = "response")
+
+cutoff_p <- 0.9
+cutoff_fc_ess <- max(dist_logistic$fc[dist_logistic$p>cutoff_p])
+cutoff_fc_disp <- min(dist_logistic$fc[1-dist_logistic$p>cutoff_p])
+
+avgpool$genecat <- factor(avgpool$genecat, levels=c("Dispensable","Essential","Slow growers","Other"))
+ggplot(avgpool, aes(fc, 1/sd, color=genecat)) + 
+  geom_point()+
+  geom_line(data=dist_logistic,aes(fc,p),color="red")+
+  geom_line(data=dist_logistic,aes(fc,1-p),color="chartreuse4")+
+  geom_vline(xintercept = cutoff_fc_ess, color="red")+
+  geom_vline(xintercept = cutoff_fc_disp, color="chartreuse4")+
+  xlab("RGR") +
+  theme_bw()+
+  theme(legend.position = "none") +
+  scale_color_manual(values = c("chartreuse4", "red", "dodgerblue", "turquoise3")) #"Dispensable","Essential","Slow growers","Other"
+ggsave("/corgi/websites/malaria_crispr2024/plots_crispr/composite_histograms_with_cutoff.pdf", width = 10, height = 10)
+
+
+df_composite <- list(
+  model=logistic_model,
+  dist_logistic=dist_logistic,
+  avgpool=avgpool
+)
+saveRDS(df_composite, "/corgi/websites/malaria_crispr2024/composite.rds")
 
 
 ################### ROC curve
@@ -384,9 +424,54 @@ ggsave("/corgi/websites/malaria_crispr2024/plots_crispr/roc_perscreen_barplot.pd
 
   
   
+##################################################################################
+# Fig xxxx. Rank screen plots ##
+##################################################################################
+
+  
+
+
+#### Produce plot of all pools -- rank vs fc
+if(FALSE){
   
   
+  listpools <- c(
+    "cr_2023march_screen",
+    "cr_2024march_half1",
+    "cr_2024march_p1",
+    #"cr_2024march_p2", #no essentials!
+    "cr_2024march_p12"
+  )
   
+  
+  listplot <- list()
+  for(curpool in listpools){
+    print(curpool)
+    
+    grstats <- all_grstats[[curpool]]$volcano$`NP BL6`
+    
+    
+    grstats$genecat <- factor(grstats$genecat, levels=c("Dispensable","Essential","Slow growers","Other"))
+    onep <- ggplot(grstats, aes(rank(fc/sd), fc, color=genecat)) + 
+      geom_point()+
+      #  geom_line(data=rbind(dist_disp, dist_ess),aes(x,p,color=type))+
+      xlab(paste("rank(RGR/sd)", pools_renamed[[curpool]])) +
+      ylab("RGR") +
+      theme_bw()+
+      theme(legend.position = "none") +
+      scale_color_manual(values = c("chartreuse4", "red", "dodgerblue", "turquoise3")) #"Dispensable","Essential","Slow growers","Other"
+
+    listplot[[curpool]] <- onep
+  }
+  totp <- egg::ggarrange(plots=listplot)
+  totp
+  
+#  ggsave(plot = totp, "/corgi/websites/malaria_crispr2024/plots_crispr/roc_perscreen.pdf", width = 4, height = 8)
+}
+
+
+#ggsave("/corgi/websites/malaria_crispr2024/plots_crispr/composite_histograms.pdf", width = 10, height = 10)
+
   
 
 
@@ -425,10 +510,17 @@ for(curpool in c("cr_2024march_half1")){
 ################# Fig xxx. "Volcano" plots #####################################
 ################################################################################
 
+
+
   
-highlight_genes <- c("PBANKA_1037800", "PBANKA_1401600", "PBANKA_0817800")   #PBANKA_1322400 is a slowgrower
+for(current_pool in c("cr_2023march_screen","cr_2024march_half1","cr_2024march_p1","cr_2024march_p12")){ #,"cr_2024march_p2"
   
-for(current_pool in c("cr_2024march_half1","cr_2024march_p1","cr_2024march_p12")){ #,"cr_2024march_p2"
+  highlight_genes <- c("PBANKA_1037800", "PBANKA_1401600", "PBANKA_0817800")   #PBANKA_1322400 is a slowgrower
+  
+  if(current_pool=="cr_2023march_screen"){
+    highlight_genes <- c()
+  }
+  
   #current_pool <- "cr_2024march_half1"
   print(current_pool)
   thecond <- "NP BL6"
@@ -439,11 +531,11 @@ for(current_pool in c("cr_2024march_half1","cr_2024march_p1","cr_2024march_p12")
   toplot$y <- 1/toplot$sd
   toplot$pool <- current_pool
   
-  yname <- paste("inverse s.d.")#,thecond)
+  yname <- paste("inverse s.d.")
   toplot$genecat <- factor(toplot$genecat, levels=c("Dispensable","Essential","Slow growers","Other"))
   ggplot(toplot, aes(fc, y, label=gene, color=genecat)) + 
     geom_point() + 
-    xlab("RGR") + #xlab(paste("RGR",thecond)) + 
+    xlab("RGR") + 
     ylab(yname) +
     scale_color_manual(values = c("chartreuse4", "red", "dodgerblue", "turquoise3"))+ #"Dispensible","Essential","Slow growers","Other"
     theme_bw() + 

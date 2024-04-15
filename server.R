@@ -352,6 +352,85 @@ server <- function(input, output, session) {
       
   })
   
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  ##############################################################################
+  ########### Composite ########################################################
+  ##############################################################################
+  
+  
+  
+  output$plot_grstats_composite <- renderPlotly({
+    
+    logistic_model <- all_composite$model
+    dist_logistic <- all_composite$dist_logistic
+    avgpool <- all_composite$avgpool
+    
+    avgpool <- merge(avgpool,geneinfo,all.x=TRUE)
+    avgpool$gene <- paste0(avgpool$gene, "\nName: ", avgpool$geneName, "\nDescription: ", avgpool$geneDesc)
+    
+    print(666)
+    print(head(avgpool))
+    
+    
+    
+    cutoff_p <- 0.9
+    cutoff_fc_ess <- max(dist_logistic$fc[dist_logistic$p>cutoff_p])
+    cutoff_fc_disp <- min(dist_logistic$fc[1-dist_logistic$p>cutoff_p])
+    
+    dist_logistic$gene <- ""
+    
+    avgpool$genecat <- factor(avgpool$genecat, levels=c("Dispensable","Essential","Slow growers","Other"))
+    theplot <- ggplot(avgpool, aes(fc, 1/sd, color=genecat, label=gene)) + 
+      geom_point()+
+      geom_line(data=dist_logistic,aes(fc,p),color="red")+
+      geom_line(data=dist_logistic,aes(fc,1-p),color="chartreuse4")+
+      geom_vline(xintercept = cutoff_fc_ess, color="red")+
+      geom_vline(xintercept = cutoff_fc_disp, color="chartreuse4")+
+      xlab("RGR") +
+      theme_bw()+
+      theme(legend.position = "none") +
+      scale_color_manual(values = c("chartreuse4", "red", "dodgerblue", "turquoise3")) #"Dispensable","Essential","Slow growers","Other"
+
+    theplot %>% ggplotly(source="plot_grstats_composite") %>% event_register("plotly_click")
+  })
+  
+  
+  
+  
+  
+  observeEvent(
+    eventExpr = event_data("plotly_click", source = "plot_grstats_composite"),
+    handlerExpr = {
+      
+      toplot <- all_composite$avgpool
+      
+      event_data <- event_data("plotly_click", source = "plot_grstats_composite")
+
+      toplot$y <- 1/toplot$sd
+
+      toplot$dx <- (toplot$fc - event_data$x)
+      toplot$dy <- (toplot$y - event_data$y)
+      toplot$dist <- toplot$dx**2 + toplot$dy**2
+      toplot <- toplot[order(toplot$dist, decreasing = FALSE),]
+      
+      clicked_gene <- toplot$gene[1] 
+      clicked_gene <- str_split_fixed(clicked_gene," ",3)[1] ## remove gene name in hover
+      updateSelectInput(session, "grstats_gene", selected = clicked_gene)
+    }
+  )  
+  
     
 }
 

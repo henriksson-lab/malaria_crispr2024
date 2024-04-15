@@ -63,7 +63,10 @@ tab_grstats <- fluidPage(
           label = "Show gene name",
           value = FALSE
         ),
+
         
+      plotlyOutput("plot_grstats_composite", height = "400px"),
+
       #)
       
 

@@ -73,6 +73,7 @@ all_samplemeta <- readRDS("samplemeta.rds")
 all_grstats <- readRDS("grstats.rds")
 all_timecourses <- readRDS("timecourses.rds")
 all_coverage_stat <- readRDS("coverage_stat.rds")
+all_composite <- readRDS("composite.rds")
 
 
 print("======= renaming pools ================ ")
