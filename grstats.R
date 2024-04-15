@@ -96,7 +96,7 @@ for(curpool in listpools){
     print("Reading cloning.csv")
     allgeneconstructs <- read.csv(cloningfile,sep="\t")  #read.csv("/corgi/otherdataset/ellenbushell/crispr_geneinfo.csv",sep="\t")
     allgeneconstructs$gene <- str_split_fixed(allgeneconstructs$grna,"gRNA",2)[,1]
-    allgeneconstructs$genecat[allgeneconstructs$genecat==""] <- "Other"
+    allgeneconstructs$genecat[allgeneconstructs$genecat==""] <- "Unstudied"
   } else {
     print("No cloning.csv -- constructing equivalent")
     
@@ -104,7 +104,7 @@ for(curpool in listpools){
       grna=rownames(counts),
       gene=str_split_fixed(rownames(counts),"00gRNA",2)[,1]  ### is this ok??? hack!
     )
-    allgeneconstructs$genecat <- "Other"
+    allgeneconstructs$genecat <- "Unstudied"
     allgeneconstructs$genewiz <- "NA"
     allgeneconstructs$ligationwell <- "NA"
     

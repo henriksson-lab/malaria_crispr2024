@@ -149,7 +149,7 @@ for(curpool in listpools){
     data.frame(gene=g1$gene, fc1=g1$fc, genecat=g1$genecat),
     data.frame(gene=g2$gene, fc2=g2$fc)
   )
-  toplot$genecat <- factor(toplot$genecat, levels=c("Dispensable","Essential","Slow growers","Other"))
+  toplot$genecat <- factor(toplot$genecat, levels=c("Dispensable","Essential","Slow growers","Unstudied"))
   plot_range <- range(c(toplot$fc1, toplot$fc2))
   onep <- ggplot(toplot) + 
     xlab(paste("RGR sgRNA #1", pools_renamed[[curpool]]))+
@@ -160,7 +160,7 @@ for(curpool in listpools){
     theme(legend.position = "none")+
     geom_smooth(method = "lm", aes(fc1,fc2),color="black")+
     geom_point(aes(fc1,fc2,color=genecat),size=3)  +
-    scale_color_manual(values = c("chartreuse4", "red", "dodgerblue", "turquoise3")) #"Dispensible","Essential","Slow growers","Other"
+    scale_color_manual(values = c("chartreuse4", "red", "dodgerblue", "#999999")) #"Dispensible","Essential","Slow growers","Unstudied"
   listplot[[curpool]] <- onep
 }  
 totp <- egg::ggarrange(plots=listplot)
@@ -198,7 +198,7 @@ for(curpool in listpools){
       fc2=grstats2$fc
     )
   )
-  toplot$genecat <- factor(toplot$genecat, levels=c("Dispensable","Essential","Slow growers","Other"))
+  toplot$genecat <- factor(toplot$genecat, levels=c("Dispensable","Essential","Slow growers","Unstudied"))
   plot_range <- range(c(toplot$fc1, toplot$fc2))
   onep <- ggplot(toplot, aes(fc1,fc2,color=genecat)) + 
     geom_point() + 
@@ -210,7 +210,7 @@ for(curpool in listpools){
     theme(legend.position = "none")+
     geom_smooth(method = "lm", aes(fc1,fc2),color="black")+  #95% confidence interval
     geom_point(aes(fc1,fc2,color=genecat),size=3)  +
-    scale_color_manual(values = c("chartreuse4", "red", "dodgerblue", "turquoise3")) #"Dispensible","Essential","Slow growers","Other"
+    scale_color_manual(values = c("chartreuse4", "red", "dodgerblue", "#999999")) #"Dispensible","Essential","Slow growers","Unstudied"
   listplot[[curpool]] <- onep
   
   
@@ -232,7 +232,7 @@ ggsave(plot=totp, "/corgi/websites/malaria_crispr2024/plots_crispr/scatterplot_p
 listpools <- c(
   "cr_2024march_half1",
   "cr_2024march_p1"
-#  "cr_2024march_p2",
+# , "cr_2024march_p2"
 #  "cr_2024march_p12"
 )
 
@@ -273,19 +273,19 @@ dist_disp$type<-"Dispensable"
 
 
 #### Produce plot of all pools -- 1/d
-avgpool$genecat <- factor(avgpool$genecat, levels=c("Dispensable","Essential","Slow growers","Other"))
+avgpool$genecat <- factor(avgpool$genecat, levels=c("Dispensable","Essential","Slow growers","Unstudied"))
 ggplot(avgpool, aes(fc, 1/sd, color=genecat)) + 
   geom_point()+
   geom_line(data=rbind(dist_disp, dist_ess),aes(x,p,color=type))+
   xlab("RGR") +
   theme_bw()+
   theme(legend.position = "none") +
-  scale_color_manual(values = c("chartreuse4", "red", "dodgerblue", "turquoise3")) #"Dispensable","Essential","Slow growers","Other"
+  scale_color_manual(values = c("chartreuse4", "red", "dodgerblue", "#999999")) #"Dispensable","Essential","Slow growers","Unstudied"
 ggsave("/corgi/websites/malaria_crispr2024/plots_crispr/composite_histograms.pdf", width = 10, height = 10)
 
 
 #### Produce plot of all pools -- rank vs fc
-avgpool$genecat <- factor(avgpool$genecat, levels=c("Dispensable","Essential","Slow growers","Other"))
+avgpool$genecat <- factor(avgpool$genecat, levels=c("Dispensable","Essential","Slow growers","Unstudied"))
 #avgpool$fc/sd
 ggplot(avgpool, aes(rank(fc/sd), fc, color=genecat)) + 
   geom_point()+
@@ -294,7 +294,7 @@ ggplot(avgpool, aes(rank(fc/sd), fc, color=genecat)) +
   ylab("RGR") +
   theme_bw()+
   theme(legend.position = "none") +
-  scale_color_manual(values = c("chartreuse4", "red", "dodgerblue", "turquoise3")) #"Dispensable","Essential","Slow growers","Other"
+  scale_color_manual(values = c("chartreuse4", "red", "dodgerblue", "#999999")) #"Dispensable","Essential","Slow growers","Unstudied"
 #ggsave("/corgi/websites/malaria_crispr2024/plots_crispr/composite_histograms.pdf", width = 10, height = 10)
 
 
@@ -318,7 +318,7 @@ cutoff_p <- 0.9
 cutoff_fc_ess <- max(dist_logistic$fc[dist_logistic$p>cutoff_p])
 cutoff_fc_disp <- min(dist_logistic$fc[1-dist_logistic$p>cutoff_p])
 
-avgpool$genecat <- factor(avgpool$genecat, levels=c("Dispensable","Essential","Slow growers","Other"))
+avgpool$genecat <- factor(avgpool$genecat, levels=c("Dispensable","Essential","Slow growers","Unstudied"))
 ggplot(avgpool, aes(fc, 1/sd, color=genecat)) + 
   geom_point()+
   geom_line(data=dist_logistic,aes(fc,p),color="red")+
@@ -328,8 +328,12 @@ ggplot(avgpool, aes(fc, 1/sd, color=genecat)) +
   xlab("RGR") +
   theme_bw()+
   theme(legend.position = "none") +
-  scale_color_manual(values = c("chartreuse4", "red", "dodgerblue", "turquoise3")) #"Dispensable","Essential","Slow growers","Other"
+  scale_color_manual(values = c("chartreuse4", "red", "dodgerblue", "#999999")) #"Dispensable","Essential","Slow growers","Unstudied"
 ggsave("/corgi/websites/malaria_crispr2024/plots_crispr/composite_histograms_with_cutoff.pdf", width = 10, height = 10)
+
+####
+sum(avgpool$genecat=="Unstudied")
+sum(avgpool$genecat=="Unstudied" & (avgpool$fc<cutoff_fc_ess | avgpool$fc>cutoff_fc_disp))
 
 
 df_composite <- list(
@@ -399,6 +403,8 @@ for(curpool in listpools){
   #tovery <- tovery[order(tovery$genecat),]
   tovery <- tovery[order(tovery$fc),]
   rocob <- pROC::roc(as.integer(tovery$genecat=="Dispensable"),tovery$fc)
+  print(curpool)
+  print(rocob$auc)
   allauc <- rbind(allauc, data.frame(screen=pools_renamed[[curpool]], auc=pROC::auc(rocob)))
   #print(pROC::auc(rocob))
   
@@ -451,7 +457,7 @@ if(FALSE){
     grstats <- all_grstats[[curpool]]$volcano$`NP BL6`
     
     
-    grstats$genecat <- factor(grstats$genecat, levels=c("Dispensable","Essential","Slow growers","Other"))
+    grstats$genecat <- factor(grstats$genecat, levels=c("Dispensable","Essential","Slow growers","Unstudied"))
     onep <- ggplot(grstats, aes(rank(fc/sd), fc, color=genecat)) + 
       geom_point()+
       #  geom_line(data=rbind(dist_disp, dist_ess),aes(x,p,color=type))+
@@ -459,7 +465,7 @@ if(FALSE){
       ylab("RGR") +
       theme_bw()+
       theme(legend.position = "none") +
-      scale_color_manual(values = c("chartreuse4", "red", "dodgerblue", "turquoise3")) #"Dispensable","Essential","Slow growers","Other"
+      scale_color_manual(values = c("chartreuse4", "red", "dodgerblue", "#999999")) #"Dispensable","Essential","Slow growers","Unstudied"
 
     listplot[[curpool]] <- onep
   }
@@ -532,12 +538,12 @@ for(current_pool in c("cr_2023march_screen","cr_2024march_half1","cr_2024march_p
   toplot$pool <- current_pool
   
   yname <- paste("inverse s.d.")
-  toplot$genecat <- factor(toplot$genecat, levels=c("Dispensable","Essential","Slow growers","Other"))
+  toplot$genecat <- factor(toplot$genecat, levels=c("Dispensable","Essential","Slow growers","Unstudied"))
   ggplot(toplot, aes(fc, y, label=gene, color=genecat)) + 
     geom_point() + 
     xlab("RGR") + 
     ylab(yname) +
-    scale_color_manual(values = c("chartreuse4", "red", "dodgerblue", "turquoise3"))+ #"Dispensible","Essential","Slow growers","Other"
+    scale_color_manual(values = c("chartreuse4", "red", "dodgerblue", "#999999"))+ #"Dispensible","Essential","Slow growers","Unstudied"
     theme_bw() + 
     theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))+
     ggrepel::geom_text_repel(data=toplot[toplot$gene %in% highlight_genes,],min.segment.length=0,nudge_x = 0.5, nudge_y = 0.3, show.legend = FALSE)

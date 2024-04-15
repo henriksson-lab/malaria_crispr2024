@@ -107,7 +107,7 @@ server <- function(input, output, session) {
       yname <- paste("inverse s.d.",thecond)
     }
     
-    toplot$genecat <- factor(toplot$genecat, levels=c("Dispensable","Essential","Slow growers","Other"))
+    toplot$genecat <- factor(toplot$genecat, levels=c("Dispensable","Essential","Slow growers","Unstudied"))
 
     if(nrow(toplot)>0){
       
@@ -134,7 +134,7 @@ server <- function(input, output, session) {
           geom_point() + 
           xlab(paste("RGR")) + 
           ylab(yname) +
-          scale_color_manual(values = c("chartreuse4", "red", "dodgerblue", "turquoise3")) #"Dispensible","Essential","Slow growers","Other"
+          scale_color_manual(values = c("chartreuse4", "red", "dodgerblue", "#999999")) #"Dispensible","Essential","Slow growers","Unstudied"
         #https://sape.inf.usi.ch/quick-reference/ggplot2/colour
       }
     } else {
@@ -391,7 +391,7 @@ server <- function(input, output, session) {
     
     dist_logistic$gene <- ""
     
-    avgpool$genecat <- factor(avgpool$genecat, levels=c("Dispensable","Essential","Slow growers","Other"))
+    avgpool$genecat <- factor(avgpool$genecat, levels=c("Dispensable","Essential","Slow growers","Unstudied"))
     theplot <- ggplot(avgpool, aes(fc, 1/sd, color=genecat, label=gene)) + 
       geom_point()+
       geom_line(data=dist_logistic,aes(fc,p),color="red")+
@@ -401,7 +401,7 @@ server <- function(input, output, session) {
       xlab("RGR") +
       theme_bw()+
       theme(legend.position = "none") +
-      scale_color_manual(values = c("chartreuse4", "red", "dodgerblue", "turquoise3")) #"Dispensable","Essential","Slow growers","Other"
+      scale_color_manual(values = c("chartreuse4", "red", "dodgerblue", "#999999")) #"Dispensable","Essential","Slow growers","Unstudied"
 
     theplot %>% ggplotly(source="plot_grstats_composite") %>% event_register("plotly_click")
   })
