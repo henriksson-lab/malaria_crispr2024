@@ -4,6 +4,18 @@ library(naturalsort)
 
 options(shiny.usecairo=T)
 
+
+
+if(TRUE){
+  options(shiny.sanitize.errors = FALSE)
+  # logging level DEBUG
+  logging::basicConfig(level = 10)
+  # write logging output to the stderr file
+  logging::addHandler(logging::writeToFile, logger = '', file = stderr())
+}
+
+
+
 if(FALSE){
   #To run this app
   library(shiny)

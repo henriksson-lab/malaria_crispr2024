@@ -420,6 +420,11 @@ ggplot(alldat, aes(d = obs, m = fc, color=screen)) + geom_roc(labels=FALSE) +
   geom_abline(slope=1, intercept=0,linetype=3)
 ggsave("/corgi/websites/malaria_crispr2024/plots_crispr/roc_perscreen_inone.pdf", width = 4, height = 3)
 
+
+#Pool of 48X = black, RGB (0,0,0) Hex: #000000
+#  Pool of 96X = dark grey, RGB (77,77,77) Hex: #4D4D4D
+#  Pool of 192X = light grey, RGB (179,179,179) Hex: #B3B3B3
+
 allauc$screen <- factor(allauc$screen, levels=c("48x","96x","192x"))
 ggplot(allauc, aes(screen, auc)) + 
   theme_bw()+
