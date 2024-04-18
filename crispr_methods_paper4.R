@@ -273,78 +273,35 @@ dist_disp$type<-"Dispensable"
 
 
 #### Produce plot of all pools -- 1/d
-avgpool$genecat <- factor(avgpool$genecat, levels=c("Dispensable","Essential","Slow growers","Unstudied"))
-ggplot(avgpool, aes(fc, 1/sd, color=genecat)) + 
-  geom_point()+
-  geom_line(data=rbind(dist_disp, dist_ess),aes(x,p,color=type))+
-  xlab("RGR") +
-  theme_bw()+
-  theme(legend.position = "none") +
-  scale_color_manual(values = c("chartreuse4", "red", "dodgerblue", "#999999")) #"Dispensable","Essential","Slow growers","Unstudied"
-ggsave("/corgi/websites/malaria_crispr2024/plots_crispr/composite_histograms.pdf", width = 10, height = 10)
-
+if(FALSE){
+  avgpool$genecat <- factor(avgpool$genecat, levels=c("Dispensable","Essential","Slow growers","Unstudied"))
+  ggplot(avgpool, aes(fc, 1/sd, color=genecat)) + 
+    geom_point()+
+    geom_line(data=rbind(dist_disp, dist_ess),aes(x,p,color=type))+
+    xlab("RGR") +
+    theme_bw()+
+    theme(legend.position = "none") +
+    scale_color_manual(values = c("chartreuse4", "red", "dodgerblue", "#999999")) #"Dispensable","Essential","Slow growers","Unstudied"
+  ggsave("/corgi/websites/malaria_crispr2024/plots_crispr/composite_histograms.pdf", width = 10, height = 10)
+}
 
 #### Produce plot of all pools -- rank vs fc
-avgpool$genecat <- factor(avgpool$genecat, levels=c("Dispensable","Essential","Slow growers","Unstudied"))
-#avgpool$fc/sd
-ggplot(avgpool, aes(rank(fc/sd), fc, color=genecat)) + 
-  geom_point()+
-#  geom_line(data=rbind(dist_disp, dist_ess),aes(x,p,color=type))+
-  xlab("rank(RGR/sd)") +
-  ylab("RGR") +
-  theme_bw()+
-  theme(legend.position = "none") +
-  scale_color_manual(values = c("chartreuse4", "red", "dodgerblue", "#999999")) #"Dispensable","Essential","Slow growers","Unstudied"
-#ggsave("/corgi/websites/malaria_crispr2024/plots_crispr/composite_histograms.pdf", width = 10, height = 10)
+if(FALSE){
+  avgpool$genecat <- factor(avgpool$genecat, levels=c("Dispensable","Essential","Slow growers","Unstudied"))
+  #avgpool$fc/sd
+  ggplot(avgpool, aes(rank(fc/sd), fc, color=genecat)) + 
+    geom_point()+
+    #  geom_line(data=rbind(dist_disp, dist_ess),aes(x,p,color=type))+
+    xlab("rank(RGR/sd)") +
+    ylab("RGR") +
+    theme_bw()+
+    theme(legend.position = "none") +
+    scale_color_manual(values = c("chartreuse4", "red", "dodgerblue", "#999999")) #"Dispensable","Essential","Slow growers","Unstudied"
+  #ggsave("/corgi/websites/malaria_crispr2024/plots_crispr/composite_histograms.pdf", width = 10, height = 10)
+}
 
 
-
-
-
-
-
-#### Logistic regression to determine gene type
-totrain <- avgpool[avgpool$genecat %in% c("Dispensable","Essential"),]
-totrain$pheno <- (totrain$genecat=="Essential") + 0
-logistic_model <- glm(pheno ~ fc,
-                      data = totrain,
-                      family = "binomial")
-dist_logistic <- data.frame(
-  fc=seq(from=min(avgpool$fc),to=max(avgpool$fc), by=0.01)
-)
-dist_logistic$p <- predict(logistic_model, dist_logistic, type = "response")
-
-cutoff_p <- 0.9
-cutoff_fc_ess <- max(dist_logistic$fc[dist_logistic$p>cutoff_p])
-cutoff_fc_disp <- min(dist_logistic$fc[1-dist_logistic$p>cutoff_p])
-
-avgpool$genecat <- factor(avgpool$genecat, levels=c("Dispensable","Essential","Slow growers","Unstudied"))
-ggplot(avgpool, aes(fc, 1/sd, color=genecat)) + 
-  geom_point()+
-  geom_line(data=dist_logistic,aes(fc,p),color="red")+
-  geom_line(data=dist_logistic,aes(fc,1-p),color="chartreuse4")+
-  geom_vline(xintercept = cutoff_fc_ess, color="red")+
-  geom_vline(xintercept = cutoff_fc_disp, color="chartreuse4")+
-  xlab("RGR") +
-  theme_bw()+
-  theme(legend.position = "none") +
-  scale_color_manual(values = c("chartreuse4", "red", "dodgerblue", "#999999")) #"Dispensable","Essential","Slow growers","Unstudied"
-ggsave("/corgi/websites/malaria_crispr2024/plots_crispr/composite_histograms_with_cutoff.pdf", width = 10, height = 10)
-
-####
-sum(avgpool$genecat=="Unstudied")
-sum(avgpool$genecat=="Unstudied" & (avgpool$fc<cutoff_fc_ess | avgpool$fc>cutoff_fc_disp))
-
-
-df_composite <- list(
-  model=logistic_model,
-  dist_logistic=dist_logistic,
-  avgpool=avgpool
-)
-saveRDS(df_composite, "/corgi/websites/malaria_crispr2024/composite.rds")
-
-
-################### ROC curve
+################### ROC curve for 
 tovery <- avgpool[avgpool$genecat %in% c("Dispensable", "Essential"),]
 tovery$obs <- tovery$genecat=="Dispensable"
 ggplot(tovery, aes(d = obs, m = fc)) + geom_roc(labels=FALSE) +
@@ -354,6 +311,55 @@ ggplot(tovery, aes(d = obs, m = fc)) + geom_roc(labels=FALSE) +
   geom_abline(slope=1, intercept=0,linetype=3)
 
 ggsave("/corgi/websites/malaria_crispr2024/plots_crispr/composite_roc.pdf", width = 4, height = 3)
+
+
+
+
+################## 3-way separation of composite phenotype
+
+#### Logistic regression to determine gene type
+totrain <- avgpool[avgpool$genecat %in% c("Dispensable","Essential","Slow growers"),]
+totrain$is_ess <- totrain$genecat=="Essential"
+totrain$is_disp <- totrain$genecat=="Dispensable"
+logistic_model_ess <- glm(is_ess ~ fc, data = totrain, family = "binomial")
+logistic_model_disp <- glm(is_disp ~ fc, data = totrain, family = "binomial")
+
+dist_logistic <- data.frame(fc=seq(from=min(avgpool$fc),to=max(avgpool$fc), by=0.01))
+dist_logistic$p_ess <- predict(logistic_model_ess, dist_logistic, type = "response")
+dist_logistic$p_disp <- predict(logistic_model_disp, dist_logistic, type = "response")
+
+cutoff_p <- 0.5
+cutoff_fc_ess <- max(dist_logistic$fc[dist_logistic$p_ess>cutoff_p])
+cutoff_fc_disp <- min(dist_logistic$fc[dist_logistic$p_disp>cutoff_p])
+
+dist_logistic$scaled_p_ess <- dist_logistic$p_ess*max(1/avgpool$sd)
+dist_logistic$scaled_p_disp <- dist_logistic$p_disp*max(1/avgpool$sd)
+
+avgpool$genecat <- factor(avgpool$genecat, levels=c("Dispensable","Essential","Slow growers","Unstudied"))
+
+
+df_composite <- list(
+  model=logistic_model,
+  dist_logistic=dist_logistic,
+  avgpool=avgpool,
+  cutoff_fc_ess=cutoff_fc_ess,
+  cutoff_fc_disp=cutoff_fc_disp
+)
+
+ggplot(df_composite$avgpool, aes(fc, 1/sd, color=genecat)) + 
+  geom_point()+
+  geom_line(data=df_composite$dist_logistic,aes(fc,scaled_p_ess),color="red")+
+  geom_line(data=df_composite$dist_logistic,aes(fc,scaled_p_disp),color="chartreuse4")+
+  geom_vline(xintercept = df_composite$cutoff_fc_ess, color="red")+
+  geom_vline(xintercept = df_composite$cutoff_fc_disp, color="chartreuse4")+
+  xlab("RGR") +
+  theme_bw()+
+  theme(legend.position = "none") +
+  scale_color_manual(values = c("chartreuse4", "red", "dodgerblue", "#999999")) #"Dispensable","Essential","Slow growers","Unstudied"
+ggsave("/corgi/websites/malaria_crispr2024/plots_crispr/composite_histograms_with_cutoff.pdf", width = 10, height = 10)
+
+
+saveRDS(df_composite, "/corgi/websites/malaria_crispr2024/composite.rds")
 
 
 ################################################################################

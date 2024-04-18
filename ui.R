@@ -67,6 +67,10 @@ tab_grstats <- fluidPage(
         
       plotlyOutput("plot_grstats_composite", height = "400px"),
 
+      p(
+        "When clicking on a gene in the composite viewer, the relative abundance graphs will shown for the pool selected in panel top-right"
+      )
+
       #)
       
 
@@ -198,7 +202,7 @@ ui <- fluidPage(
 
   tabsetPanel(type = "tabs",
               tabPanel("Gene RGRs", tab_grstats),
-              tabPanel("Pool overviews", tab_samplemeta),
+              #tabPanel("Pool overviews", tab_samplemeta),
               tabPanel("About", tab_about),
   )
   

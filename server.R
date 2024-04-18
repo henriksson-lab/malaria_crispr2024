@@ -385,36 +385,31 @@ server <- function(input, output, session) {
   
   output$plot_grstats_composite <- renderPlotly({
     
-    logistic_model <- all_composite$model
-    dist_logistic <- all_composite$dist_logistic
-    avgpool <- all_composite$avgpool
+    df_composite <- all_composite
     
-    avgpool <- merge(avgpool,geneinfo,all.x=TRUE)
-    avgpool$gene <- paste0(avgpool$gene, "\nName: ", avgpool$geneName, "\nDescription: ", avgpool$geneDesc)
+    ## Add proper gene names
+    df_composite$avgpool <- merge(df_composite$avgpool,geneinfo,all.x=TRUE)
+    df_composite$avgpool$gene <- paste0(
+      df_composite$avgpool$gene, 
+      "\nName: ", 
+      df_composite$avgpool$geneName, 
+      "\nDescription: ", 
+      df_composite$avgpool$geneDesc)
     
-    print(666)
-    print(head(avgpool))
+    df_composite$dist_logistic$gene <- ""
     
-    
-    
-    cutoff_p <- 0.9
-    cutoff_fc_ess <- max(dist_logistic$fc[dist_logistic$p>cutoff_p])
-    cutoff_fc_disp <- min(dist_logistic$fc[1-dist_logistic$p>cutoff_p])
-    
-    dist_logistic$gene <- ""
-    
-    avgpool$genecat <- factor(avgpool$genecat, levels=c("Dispensable","Essential","Slow growers","Unstudied"))
-    theplot <- ggplot(avgpool, aes(fc, 1/sd, color=genecat, label=gene)) + 
+    theplot <- ggplot(df_composite$avgpool, aes(fc, 1/sd, color=genecat, label=gene)) + 
       geom_point()+
-      geom_line(data=dist_logistic,aes(fc,p),color="red")+
-      geom_line(data=dist_logistic,aes(fc,1-p),color="chartreuse4")+
-      geom_vline(xintercept = cutoff_fc_ess, color="red")+
-      geom_vline(xintercept = cutoff_fc_disp, color="chartreuse4")+
+      geom_line(data=df_composite$dist_logistic,aes(fc,scaled_p_ess),color="red")+
+      geom_line(data=df_composite$dist_logistic,aes(fc,scaled_p_disp),color="chartreuse4")+
+      geom_vline(xintercept = df_composite$cutoff_fc_ess, color="red")+
+      geom_vline(xintercept = df_composite$cutoff_fc_disp, color="chartreuse4")+
       xlab("RGR") +
       theme_bw()+
       theme(legend.position = "none") +
       scale_color_manual(values = c("chartreuse4", "red", "dodgerblue", "#999999")) #"Dispensable","Essential","Slow growers","Unstudied"
-
+    
+    
     theplot %>% ggplotly(source="plot_grstats_composite") %>% event_register("plotly_click")
   })
   
