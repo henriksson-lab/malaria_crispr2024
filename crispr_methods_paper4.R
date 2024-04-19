@@ -361,6 +361,14 @@ ggsave("/corgi/websites/malaria_crispr2024/plots_crispr/composite_histograms_wit
 
 saveRDS(df_composite, "/corgi/websites/malaria_crispr2024/composite.rds")
 
+df_composite$cutoff_fc_ess
+
+avgpool$gene[avgpool$genecat %in% c("Unstudied") & avgpool$fc < df_composite$cutoff_fc_ess]
+avgpool$gene[avgpool$genecat %in% c("Unstudied") & avgpool$fc > df_composite$cutoff_fc_disp]
+
+totrain$is_ess <- totrain$genecat=="Essential"
+totrain$is_disp <- totrain$genecat=="Dispensable"
+
 
 ################################################################################
 ################## Fig xxx ROC curve for each screen ###########################
