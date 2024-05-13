@@ -70,7 +70,10 @@ server <- function(input, output, session) {
     #print(8888)
     coverage_stat <- coverage_stat[order(coverage_stat$cnt, decreasing = TRUE),]
     coverage_stat$grna <- factor(coverage_stat$grna, levels=coverage_stat$grna)
-    covstatplot <- ggplot(coverage_stat, aes(grna,cnt,color=genecat)) + geom_point() + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+    covstatplot <- ggplot(coverage_stat, aes(grna,cnt,color=genecat)) + 
+      geom_point() + 
+      theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) + 
+      scale_color_discrete(name = "PlasmoGEM Phenotype")
 
     #Natural order on genewiz column    
     coverage_stat <- coverage_stat[naturalsort::naturalorder(coverage_stat$genewiz),]  #R install naturalsort
@@ -81,22 +84,18 @@ server <- function(input, output, session) {
       theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
 
     ptot/(covstatplot|wellplot)
-    
-    
 
   })
 
   ################################################################################
   ########### For a single screen - volcano ######################################
   ################################################################################
-  
-  #TODO click on a gene to show time course beneath
-  
+
   get_current_volcano <- function(){
     current_pool <- input$grstats_pool
     print(current_pool)
     grstats <- all_grstats[[current_pool]]
-    thecond <- "NP BL6"#input$grstats_volcano
+    thecond <- "NP BL6"
     
     if(thecond %in% names(grstats$volcano)){
       grstats$volcano[[thecond]]
@@ -108,15 +107,15 @@ server <- function(input, output, session) {
   output$plot_grstats_volcano <- renderPlotly({
     
     
-    thecond <- "NP BL6" #input$grstats_volcano
+    thecond <- "NP BL6" 
     toplot <- get_current_volcano()
     
     if(input$grstats_y=="-Log10 p, different from control genes"){
       toplot$y <- toplot$logp
-      yname <- paste("-log10 pval",thecond)
+      yname <- paste("-log10 pval")
     } else {
       toplot$y <- 1/toplot$sd
-      yname <- paste("inverse s.d.",thecond)
+      yname <- paste("inverse s.d.")
     }
     
     toplot$genecat <- factor(toplot$genecat, levels=c("Dispensable","Essential","Slow growers","Unstudied"))
@@ -134,7 +133,9 @@ server <- function(input, output, session) {
           geom_point(color="gray") + 
           geom_text() +
           xlab(paste("RGR")) + 
-          ylab(yname)
+          ylab(yname) +
+          scale_color_discrete(name = "PlasmoGEM Phenotype")
+        
       } else {
         
         #For hover, add gene symbol
@@ -146,7 +147,7 @@ server <- function(input, output, session) {
           geom_point() + 
           xlab(paste("RGR")) + 
           ylab(yname) +
-          scale_color_manual(values = c("chartreuse4", "red", "dodgerblue", "#999999")) #"Dispensible","Essential","Slow growers","Unstudied"
+          scale_color_manual(values = c("chartreuse4", "red", "dodgerblue", "#999999"), name = "PlasmoGEM Phenotype") #"Dispensible","Essential","Slow growers","Unstudied"
         #https://sape.inf.usi.ch/quick-reference/ggplot2/colour
       }
     } else {
@@ -278,9 +279,6 @@ server <- function(input, output, session) {
     
     ########### Average together based on user input
     
-    print(666)
-    print(head(grstats))
-    
     if(grstats_avg_grna){
       grstats <- sqldf::sqldf(
         "select day, avg(y) as y, gene, primed, genotype, mouse_ref from grstats group by mouse_ref, gene, day, primed, genotype")
@@ -339,8 +337,10 @@ server <- function(input, output, session) {
     ggplotly(ggplot(grstats,aes(x=day,y=y, group=group, color=colorby, text=group)) + 
                geom_line()+
                xlab("Day")+
-               ggtitle(""), tooltip = c("x", "y", "color", "text", "group"))
-    
+               ylab("Relative abundance")+
+               ggtitle("") +
+               scale_color_discrete(name = " ")
+             , tooltip = c("x", "y", "color", "text", "group"))
   }
   
   
@@ -407,7 +407,7 @@ server <- function(input, output, session) {
       xlab("RGR") +
       theme_bw()+
       theme(legend.position = "none") +
-      scale_color_manual(values = c("chartreuse4", "red", "dodgerblue", "#999999")) #"Dispensable","Essential","Slow growers","Unstudied"
+      scale_color_manual(values = c("chartreuse4", "red", "dodgerblue", "#999999"), name = "PlasmoGEM Phenotype") #"Dispensable","Essential","Slow growers","Unstudied"
     
     
     theplot %>% ggplotly(source="plot_grstats_composite") %>% event_register("plotly_click")
