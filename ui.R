@@ -65,7 +65,7 @@ tab_grstats <- fluidPage(
       plotlyOutput("plot_grstats_composite", height = "400px"),
       
       p(
-        "Instead write here something like “Logistic regression model from screen of 48X and 96X KO screens to determine phenotypes of unstudied genes (in grey). To view relative abundances (panel top right) by clicking on a gene in the composite viewer, first selected 48x or 96x pool above."
+        "Logistic regression model from screen of 48X and 96X KO screens to determine phenotypes of unstudied genes (in grey). To view relative abundances (panel top right) by clicking on a gene in the composite viewer, first selected 48x or 96x pool above."
       )
       
 
